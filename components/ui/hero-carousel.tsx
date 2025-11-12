@@ -39,7 +39,7 @@ export function HeroCarousel() {
             <div
               key={idx}
               className="relative flex-shrink-0 w-[80%] md:w-[65%] h-full rounded-xl overflow-hidden"
-              style={{ flex: "0 0 70%" }} // ensures the width doesn't shrink
+              style={{ flex: "0 0 70%" }}
             >
               <Image
                 src={src}
@@ -52,8 +52,11 @@ export function HeroCarousel() {
         </div>
       </div>
 
+      {/* Overlay background gradient for readability */}
+      <div className="absolute inset-0 bg-black/40" />
+
       {/* Overlay content */}
-      <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-white px-4 md:px-0">
+      <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-white px-4 md:px-0 z-10">
         <h1 className="text-3xl md:text-5xl font-bold mb-4 drop-shadow-lg">
           Find Your New Best Friend
         </h1>
@@ -67,7 +70,7 @@ export function HeroCarousel() {
           <Button
             variant="outline"
             asChild
-            className="text-gray-900 dark:text-white hover:bg-gray-900 hover:text-white dark:hover:bg-white dark:hover:text-gray-900"
+            className="text-black hover:bg-white hover:text-gray-900"
           >
             <a href="/learn-more">Learn More</a>
           </Button>
