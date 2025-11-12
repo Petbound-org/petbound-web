@@ -26,7 +26,7 @@ export function HeroCarousel() {
     if (!emblaApi) return
     const interval = setInterval(() => {
       emblaApi.scrollNext()
-    }, 4000)
+    }, 5000)
     return () => clearInterval(interval)
   }, [emblaApi])
 
@@ -39,10 +39,10 @@ export function HeroCarousel() {
             <div
               key={idx}
               className="relative flex-shrink-0 w-[80%] md:w-[65%] h-full rounded-xl overflow-hidden"
-              style={{ flex: "0 0 70%" }}
+              style={{ flex: "0 0 90%" }}
             >
               {/* Only the image container has the overlay */}
-              <div className="absolute inset-0 bg-black/50 z-10 rounded-xl" />
+              <div className="absolute inset-0 bg-black/55 z-10 rounded-xl" />
               <Image
                 src={src}
                 alt={`Slide ${idx + 1}`}
@@ -60,7 +60,7 @@ export function HeroCarousel() {
           Find Your New Best Friend
         </h1>
         <p className="text-lg md:text-2xl mb-6 drop-shadow-md">
-          Adopt a pet at risk of euthanasia today and give them a loving home
+          Adopt an animal at risk of euthanasia today and save a life. ♡
         </p>
         <div className="flex gap-4">
           <Button variant="default" asChild>
