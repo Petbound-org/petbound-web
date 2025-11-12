@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils"
 function Navbar({ className, ...props }: React.HTMLAttributes<HTMLElement>) {
   return (
     <header
-      className={cn("w-full border-b bg-white dark:bg-gray-900", className)}
+      className={cn("w-full  bg-white dark:bg-black", className)}
       {...props}
     >
       <div className="max-w-7xl mx-auto flex items-center justify-between px-8 py-6">
