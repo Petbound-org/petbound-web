@@ -25,7 +25,7 @@ export function HeroPets() {
   const visiblePets = pets.slice(0, maxRows * maxColsLg)
 
   return (
-    <section className="relative w-full bg-gray-50 dark:bg-gray-900 py-16 px-4 md:px-8">
+    <section className="relative w-full bg-gray-50 dark:bg-gray-900 py-12 pb-16 px-4 md:px-8">
       {/* Title */}
       <div className="max-w-7xl mx-auto text-center mb-12">
         <h2 className="text-3xl md:text-5xl font-bold text-gray-900 dark:text-white">

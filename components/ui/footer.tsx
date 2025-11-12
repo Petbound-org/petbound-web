@@ -11,7 +11,7 @@ export function Footer() {
           <h3 className="text-2xl font-bold text-white mb-3">Petbound</h3>
           <p className="text-sm text-gray-400">
             Connecting animals at risk of euthanasia to their forever homes. 
-            Find your new best friend today and save a life in doing so.
+            Find your new best friend today and save a life in doing so.c
           </p>
         </div>
 
