@@ -41,6 +41,8 @@ export function HeroCarousel() {
               className="relative flex-shrink-0 w-[80%] md:w-[65%] h-full rounded-xl overflow-hidden"
               style={{ flex: "0 0 70%" }}
             >
+              {/* Only the image container has the overlay */}
+              <div className="absolute inset-0 bg-black/50 z-10 rounded-xl" />
               <Image
                 src={src}
                 alt={`Slide ${idx + 1}`}
@@ -52,25 +54,22 @@ export function HeroCarousel() {
         </div>
       </div>
 
-      {/* Overlay background gradient for readability */}
-      <div className="absolute inset-0 bg-black/40" />
-
       {/* Overlay content */}
-      <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-white px-4 md:px-0 z-10">
+      <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-white px-4 md:px-0 z-20">
         <h1 className="text-3xl md:text-5xl font-bold mb-4 drop-shadow-lg">
           Find Your New Best Friend
         </h1>
         <p className="text-lg md:text-2xl mb-6 drop-shadow-md">
-          Adopt a pet today and give them a loving home
+          Adopt a pet at risk of euthanasia today and give them a loving home
         </p>
         <div className="flex gap-4">
           <Button variant="default" asChild>
-            <a href="/adopt">Adopt Now</a>
+            <a href="/adopt">Explore</a>
           </Button>
           <Button
             variant="outline"
             asChild
-            className="text-black hover:bg-white hover:text-gray-900"
+            className="text-black hover:bg-gray-200"
           >
             <a href="/learn-more">Learn More</a>
           </Button>
