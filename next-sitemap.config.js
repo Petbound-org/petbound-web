@@ -1,15 +1,19 @@
 /** @type {import('next-sitemap').IConfig} */
 module.exports = {
   siteUrl: 'https://petbound.org',
-  generateRobotsTxt: true, // will generate robots.txt automatically
+  generateRobotsTxt: true,
   robotsTxtOptions: {
     policies: [
-      { userAgent: '*', allow: '/' },            // allow all crawlers
-      { userAgent: 'Googlebot', allow: '/' },    // explicitly allow Google
-      { userAgent: 'Bingbot', allow: '/' },      // explicitly allow Bing
-    ],
-    additionalSitemaps: [
-      'https://petbound.org/sitemap.xml',        // optional extra sitemaps
+      { userAgent: 'Googlebot', allow: '/' },
+      { userAgent: 'Googlebot-Image', allow: '/' },
+      { userAgent: 'Googlebot-News', allow: '/' },
+      { userAgent: 'Googlebot-Video', allow: '/' },
+      { userAgent: 'Bingbot', allow: '/' },
+      { userAgent: 'DuckDuckBot', allow: '/' },
+      { userAgent: 'Yahoo! Slurp', allow: '/' },
+      { userAgent: 'Baiduspider', allow: '/' },
+      { userAgent: 'YandexBot', allow: '/' },
+      { userAgent: '*', disallow: '/' },
     ],
   },
 };

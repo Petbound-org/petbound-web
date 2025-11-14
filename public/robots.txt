@@ -1,17 +1,34 @@
-# *
-User-agent: *
-Allow: /
-
-# Googlebot
+# Allow only major search engines for SEO
 User-agent: Googlebot
 Allow: /
 
-# Bingbot
+User-agent: Googlebot-Image
+Allow: /
+
+User-agent: Googlebot-News
+Allow: /
+
+User-agent: Googlebot-Video
+Allow: /
+
 User-agent: Bingbot
 Allow: /
 
-# Host
-Host: https://petbound.org
+User-agent: DuckDuckBot
+Allow: /
 
-# Sitemaps
+User-agent: Yahoo! Slurp
+Allow: /
+
+User-agent: Baiduspider
+Allow: /
+
+User-agent: YandexBot
+Allow: /
+
+# Block all other bots
+User-agent: *
+Disallow: /
+
+# Optional: sitemap reference
 Sitemap: https://petbound.org/sitemap.xml
