@@ -77,6 +77,10 @@ export default async function PetPage(props: any) {
   if (pet.description?.startsWith("***** AVAILABLE FOR ADOPTION NOW ***** "))
     pet.description = pet.description.substring(39)
 
+  // Improving euthanasia reason
+  if (pet.euthanasia_reason === "Space")
+    pet.euthanasia_reason = "Lack of Space"
+
   return (
     <div className="min-h-screen bg-linear-to-b from-background to-muted/20">
       {/* HERO SECTION */}
@@ -155,7 +159,7 @@ export default async function PetPage(props: any) {
                       )}
                       {pet.euthanasia_reason && (
                         <p className="text-sm text-red-700 dark:text-red-300 mt-2">
-                          {pet.euthanasia_reason}
+                          Reason: {pet.euthanasia_reason}
                         </p>
                       )}
                     </div>
