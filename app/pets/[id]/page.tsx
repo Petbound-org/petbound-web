@@ -39,7 +39,7 @@ export default async function PetPage(props: any) {
   const pet: Pet | null = await getPetData(id)
   if (!pet) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-background to-muted/20 p-4">
+      <div className="flex min-h-screen items-center justify-center bg-linear-to-b from-background to-muted/20 p-4">
         <Card className="w-full max-w-md">
           <CardContent className="pt-6 text-center space-y-4">
             <div className="flex items-center justify-center gap-4">
@@ -138,7 +138,7 @@ export default async function PetPage(props: any) {
               {days !== null && (
                 <div className="bg-red-50 dark:bg-red-950/30 border-2 border-red-200 dark:border-red-900 rounded-xl p-6">
                   <div className="flex items-start gap-3">
-                    <AlertCircle className="w-6 h-6 text-red-600 dark:text-red-500 flex-shrink-0 mt-0.5" />
+                    <AlertCircle className="w-6 h-6 text-red-600 dark:text-red-500 shrink-0 mt-0.5" />
                     <div className="space-y-1">
                       <p className="font-bold text-red-900 dark:text-red-100 text-lg">
                         Urgent: {days === 0 ? "Last Day" : days === 1 ? "1 Day Left" : `${days} Days Left`}
@@ -291,31 +291,31 @@ export default async function PetPage(props: any) {
               <CardContent>
                 <ol className="space-y-3 text-sm">
                   <li className="flex gap-3">
-                    <span className="flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold">
+                    <span className="shrink-0 flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold">
                       1
                     </span>
                     <span className="pt-0.5">Contact the shelter using phone or email</span>
                   </li>
                   <li className="flex gap-3">
-                    <span className="flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold">
+                    <span className="shrink-0 flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold">
                       2
                     </span>
                     <span className="pt-0.5">Ask about visitation hours and requirements</span>
                   </li>
                   <li className="flex gap-3">
-                    <span className="flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold">
+                    <span className="shrink-0 flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold">
                       3
                     </span>
                     <span className="pt-0.5">Schedule a visit to meet {pet.name}</span>
                   </li>
                   <li className="flex gap-3">
-                    <span className="flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold">
+                    <span className="shrink-0 flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold">
                       4
                     </span>
                     <span className="pt-0.5">Complete adoption application and interview</span>
                   </li>
                   <li className="flex gap-3">
-                    <span className="flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold">
+                    <span className="shrink-0 flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold">
                       5
                     </span>
                     <span className="pt-0.5">Finalize adoption and bring {pet.name} home!</span>
