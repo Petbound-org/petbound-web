@@ -64,7 +64,7 @@ export function HeroCarousel() {
         </p>
         <div className="flex gap-4">
           <Button variant="default" asChild>
-            <a href="/adopt">Explore</a>
+            <a href="/explore">Explore</a>
           </Button>
           <Button
             variant="outline"
