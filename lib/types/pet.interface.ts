@@ -1,0 +1,16 @@
+export interface Pet {
+  id: number,
+  name: string | null,
+  breed: string | null,
+  age: string | null,
+  gender: string | null,
+  size: string | null,
+  description: string | null,
+  euthanasia_date: string | null,
+  image_urls: string[] | null,
+  shelter_id: number | null,
+  created_at: string | null,
+  updated_at: string | null,
+  shelter_given_id: string | null,
+  euthanasia_reason: string | null,
+}
