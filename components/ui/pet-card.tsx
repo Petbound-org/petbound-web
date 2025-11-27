@@ -2,16 +2,10 @@
 
 import * as React from "react"
 import Image from "next/image"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Heart } from "lucide-react"
-
-export type Pet = {
-  id: number
-  name: string
-  breed: string
-  age: string
-  image: string
-}
+import { Pet } from "@/lib/types/pet.interface"
 
 type PetCardProps = {
   pet: Pet
@@ -46,13 +40,18 @@ export function PetCard({ pet }: PetCardProps) {
       onDoubleClick={handleDoubleClick}
     >
       {/* Pet image */}
-      <div className="relative h-48 w-full">
-        <Image
-          src={pet.image}
-          alt={pet.name}
-          fill
-          className="object-cover"
-        />
+      <div className="relative h-48 w-full overflow-hidden">
+        {pet.image_urls && pet.image_urls.length > 0 ? (
+          <img
+            src={pet.image_urls[0]}
+            alt={pet.name || "Pet photo"}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center bg-gray-200 dark:bg-gray-700">
+            <Heart className="w-16 h-16 text-gray-400 dark:text-gray-500" />
+          </div>
+        )}
       </div>
 
       {/* Pet details */}
@@ -67,9 +66,11 @@ export function PetCard({ pet }: PetCardProps) {
 
         {/* Buttons */}
         <div className="mt-4 flex items-center gap-2">
-          <Button variant="default" className="flex-1">
-            More Info
-          </Button>
+          <Link href={`/pets/${pet.id}`} className="flex-1">
+            <Button variant="default" className="w-full">
+              More Info
+            </Button>
+          </Link>
           <Button
             variant="outline"
             className="p-2 flex items-center justify-center"

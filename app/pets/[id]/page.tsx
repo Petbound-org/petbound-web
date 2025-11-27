@@ -59,8 +59,8 @@ export default async function PetPage(props: any) {
             <div className="pt-2">
               <Button asChild className="w-full">
                 <a href="/">
-                  <Heart className="w-4 h-4 mr-2" />
                   Browse Available Pets
+                  <Heart className="w-4 h-4 mr-2" />
                 </a>
               </Button>
             </div>

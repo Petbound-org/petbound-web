@@ -38,7 +38,7 @@ export function HeroCarousel() {
           {heroImages.map((src, idx) => (
             <div
               key={idx}
-              className="relative flex-shrink-0 w-[80%] md:w-[65%] h-full rounded-xl overflow-hidden"
+              className="relative shrink-0 w-[80%] md:w-[65%] h-full rounded-xl overflow-hidden"
               style={{ flex: "0 0 90%" }}
             >
               {/* Only the image container has the overlay */}
