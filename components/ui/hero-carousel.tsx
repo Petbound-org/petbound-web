@@ -71,7 +71,7 @@ export function HeroCarousel() {
             asChild
             className="text-black hover:bg-gray-200"
           >
-            <a href="/learn-more">Learn More</a>
+            <a href="/about-us">Learn More</a>
           </Button>
         </div>
       </div>
