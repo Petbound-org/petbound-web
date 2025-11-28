@@ -50,7 +50,7 @@ export default function UnderConstruction() {
             {/* Call to Action Button */}
             <div className="pt-2">
               <Button asChild className="w-full">
-                <a href="/">
+                <a href="/explore">
                   Browse Available Pets
                   <Heart className="w-4 h-4 mr-2" />
                 </a>
