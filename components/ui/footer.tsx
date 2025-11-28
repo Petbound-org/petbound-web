@@ -10,8 +10,7 @@ export function Footer() {
         <div>
           <h3 className="text-2xl font-bold text-white mb-3">Petbound</h3>
           <p className="text-sm text-gray-400">
-            Connecting animals at risk of euthanasia to their forever homes. 
-            Find your new best friend today and save a life in doing so.c
+            The adoption platform exclusively for animals at risk of euthanasia, giving them a second chance at life.
           </p>
         </div>
 
@@ -20,9 +19,9 @@ export function Footer() {
           <h4 className="text-lg font-semibold text-white mb-3">Quick Links</h4>
           <ul className="space-y-2 text-sm">
             <li><a href="#" className="hover:text-white transition-colors">Home</a></li>
-            <li><a href="#" className="hover:text-white transition-colors">About Us</a></li>
-            <li><a href="#" className="hover:text-white transition-colors">Explore</a></li>
-            <li><a href="#" className="hover:text-white transition-colors">Contact</a></li>
+            <li><a href="/about-us" className="hover:text-white transition-colors">About Us</a></li>
+            <li><a href="/explore" className="hover:text-white transition-colors">Explore</a></li>
+            {/* <li><a href="#" className="hover:text-white transition-colors">Contact</a></li> */}
           </ul>
         </div>
 
@@ -31,9 +30,9 @@ export function Footer() {
           <h4 className="text-lg font-semibold text-white mb-3">Socials</h4>
           <div className="flex space-x-4">
             <a href="#" className="hover:text-white"><Facebook size={20} /></a>
-            <a href="#" className="hover:text-white"><Instagram size={20} /></a>
+            <a href="https://www.instagram.com/petboundorg/" className="hover:text-white"><Instagram size={20} /></a>
             <a href="#" className="hover:text-white"><Twitter size={20} /></a>
-            <a href="#" className="hover:text-white"><Mail size={20} /></a>
+            <a href={`mailto:petboundorg@gmail.com`} className="hover:text-white"><Mail size={20} /></a>
           </div>
         </div>
       </div>

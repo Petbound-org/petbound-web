@@ -38,7 +38,7 @@ export function HeroCarousel() {
           {heroImages.map((src, idx) => (
             <div
               key={idx}
-              className="relative flex-shrink-0 w-[80%] md:w-[65%] h-full rounded-xl overflow-hidden"
+              className="relative shrink-0 w-[80%] md:w-[65%] h-full rounded-xl overflow-hidden"
               style={{ flex: "0 0 90%" }}
             >
               {/* Only the image container has the overlay */}
@@ -64,14 +64,14 @@ export function HeroCarousel() {
         </p>
         <div className="flex gap-4">
           <Button variant="default" asChild>
-            <a href="/adopt">Explore</a>
+            <a href="/explore">Explore</a>
           </Button>
           <Button
             variant="outline"
             asChild
             className="text-black hover:bg-gray-200"
           >
-            <a href="/learn-more">Learn More</a>
+            <a href="/about-us">Learn More</a>
           </Button>
         </div>
       </div>

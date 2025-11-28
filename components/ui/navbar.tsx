@@ -17,7 +17,7 @@ function Navbar({ className, ...props }: React.HTMLAttributes<HTMLElement>) {
     >
       <div className="max-w-7xl mx-auto flex items-center justify-between px-8 py-6">
         {/* Left: Logo */}
-        <div className="flex-shrink-0">
+        <div className="shrink-0">
           <Link href="/" className="text-xl font-bold">
             Petbound
           </Link>
@@ -34,7 +34,7 @@ function Navbar({ className, ...props }: React.HTMLAttributes<HTMLElement>) {
         {/* Right: Buttons */}
         <div className="flex items-center space-x-4">
           <Button variant="default" asChild>
-            <Link href="/saved-pets">Saved</Link>
+            <Link href="/explore">Explore</Link>
           </Button>
           <Button variant="outline" asChild className="flex items-center gap-1">
             <Link href="/login">
