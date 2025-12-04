@@ -4,7 +4,9 @@ import { HeroPets } from "./hero-pets"
 import { Pet } from "@/lib/types/pet.interface"
 import { supabase } from "@/lib/supabaseClient"
 
-// Removed distanceMiles function and all the complex sorting logic!
+// Fix to prevent data for being cached for too long
+// to the point where it is outdated.
+export const revalidate = 86400;
 
 // The SQL function definition is assumed to be deployed in Supabase.
 // It is now an async Server Action/Function.
