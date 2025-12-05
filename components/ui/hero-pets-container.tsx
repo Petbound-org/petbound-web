@@ -6,7 +6,7 @@ import { supabase } from "@/lib/supabaseClient"
 
 // Fix to prevent data for being cached for too long
 // to the point where it is outdated.
-export const revalidate = 86400;
+export const dynamic = "force-dynamic";
 
 // The SQL function definition is assumed to be deployed in Supabase.
 // It is now an async Server Action/Function.
