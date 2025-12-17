@@ -10,7 +10,7 @@ export function Footer() {
         <div>
           <h3 className="text-2xl font-bold text-white mb-3">Petbound</h3>
           <p className="text-sm text-gray-400">
-            The adoption platform exclusively for animals at risk of euthanasia, giving them a second chance at life.
+            The adoption platform exclusively for animals at risk of euthanasia, giving pets a second chance at life.
           </p>
         </div>
 
