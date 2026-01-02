@@ -34,6 +34,7 @@ async function getPets(count: number): Promise<Pet[]> {
 }
 
 export async function HeroPetsContainer() {
+  // Maybe change later to be dynamic based on screen size?
   const maxRows = 3
   const maxColsLg = 4
   const totalNeeded = maxRows * maxColsLg
