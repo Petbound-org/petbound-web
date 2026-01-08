@@ -6,7 +6,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { createBrowserClient } from '@/lib/supabaseClientBrowser'
-import { Github, Mail, Loader2 } from 'lucide-react'
+// import { Github, Mail, Loader2 } from 'lucide-react'
+import { Mail, Loader2 } from 'lucide-react'
 
 export function LoginForm() {
   const [email, setEmail] = useState('')
@@ -66,24 +67,26 @@ export function LoginForm() {
     }
   }
 
-  const handleOAuthLogin = async (provider: 'google' | 'github') => {
-    setIsLoading(true)
-    setError(null)
+  // OAuth login functionality commented out - focusing on Supabase email/password as primary authentication method
+  // This can be re-enabled later if OAuth providers (Google, GitHub) need to be added back
+  // const handleOAuthLogin = async (provider: 'google' | 'github') => {
+  //   setIsLoading(true)
+  //   setError(null)
 
-    try {
-      const { error: oauthError } = await supabase.auth.signInWithOAuth({
-        provider,
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback`
-        }
-      })
+  //   try {
+  //     const { error: oauthError } = await supabase.auth.signInWithOAuth({
+  //       provider,
+  //       options: {
+  //         redirectTo: `${window.location.origin}/auth/callback`
+  //       }
+  //     })
 
-      if (oauthError) throw oauthError
-    } catch (err: any) {
-      setError(err.message || 'An error occurred')
-      setIsLoading(false)
-    }
-  }
+  //     if (oauthError) throw oauthError
+  //   } catch (err: any) {
+  //     setError(err.message || 'An error occurred')
+  //     setIsLoading(false)
+  //   }
+  // }
 
   return (
     <Card className="w-full max-w-md">
@@ -102,8 +105,9 @@ export function LoginForm() {
           </div>
         )}
 
-        {/* OAuth Buttons */}
-        <div className="space-y-2">
+        {/* OAuth Buttons - Commented out to focus on Supabase email/password as primary authentication method
+            OAuth providers (Google, GitHub) can be re-enabled later if needed */}
+        {/* <div className="space-y-2">
           <Button
             type="button"
             variant="outline"
@@ -153,7 +157,7 @@ export function LoginForm() {
               Or continue with
             </span>
           </div>
-        </div>
+        </div> */}
 
         {/* Email/Password Form */}
         <form onSubmit={handleEmailAuth} className="space-y-4">
