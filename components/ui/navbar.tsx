@@ -1,5 +1,6 @@
 import * as React from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { User, Search } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -15,11 +16,19 @@ function Navbar({ className, ...props }: React.HTMLAttributes<HTMLElement>) {
       className={cn("w-full  bg-white dark:bg-black", className)}
       {...props}
     >
-      <div className="max-w-7xl mx-auto flex items-center justify-between px-8 py-6">
+      <div className="max-w-7xl mx-auto flex items-center justify-between pl-4 pr-8 py-6">
         {/* Left: Logo */}
         <div className="shrink-0">
-          <Link href="/" className="text-xl font-bold">
-            Petbound
+          <Link href="/" className="flex items-center gap-3">
+            <Image
+              src="/images/logo-1.png"
+              alt="Petbound"
+              width={180}
+              height={60}
+              className="h-14 w-auto border-solid border-0"
+              priority
+            />
+            <span className="text-xl font-bold">Petbound</span>
           </Link>
         </div>
         {/* Center: Search bar */}
