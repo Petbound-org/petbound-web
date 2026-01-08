@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   title: "Petbound",
   description: "The adoption platform build exclusively for animals at risk of euthanasia",
   icons: {
-    icon: "/images/logo-3.jpg",
+    icon: "/images/logo-7.png",
   },
 };
 

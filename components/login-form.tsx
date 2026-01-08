@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -9,15 +9,8 @@ import { createBrowserClient } from '@/lib/supabaseClientBrowser'
 // import { Github, Mail, Loader2 } from 'lucide-react'
 import { Mail, Loader2 } from 'lucide-react'
 
-export function LoginForm() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [isSignUp, setIsSignUp] = useState(false)
-  const router = useRouter()
+function LoginFormContent({ setError }: { setError: (error: string | null) => void }) {
   const searchParams = useSearchParams()
-  const supabase = createBrowserClient()
 
   useEffect(() => {
     const errorParam = searchParams.get('error')
@@ -28,7 +21,19 @@ export function LoginForm() {
         setError('No authorization code received. Please try again.')
       }
     }
-  }, [searchParams])
+  }, [searchParams, setError])
+
+  return null
+}
+
+export function LoginForm() {
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [isSignUp, setIsSignUp] = useState(false)
+  const router = useRouter()
+  const supabase = createBrowserClient()
 
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -99,6 +104,10 @@ export function LoginForm() {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
+        <Suspense fallback={null}>
+          <LoginFormContent setError={setError} />
+        </Suspense>
+        
         {error && (
           <div className="p-3 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md">
             {error}
