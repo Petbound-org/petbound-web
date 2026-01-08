@@ -10,23 +10,23 @@ import { Slider } from "@/components/ui/slider"
 import { Button } from "@/components/ui/button"
 import { Search, Filter, Compass, AlertCircle, ChevronLeft, ChevronRight } from "lucide-react"
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 
 // Import the Server Action for fetching data (You must define this in src/lib/server-actions.ts)
 import { getPets } from "@/lib/server-actions" 
 
 interface ExplorePetsProps {
-  initialPets: Pet[]
-  initialCount: number
+    initialPets: Pet[]
+    initialCount: number
 }
 
 // --- CONSTANTS ---
@@ -75,7 +75,7 @@ const FilterSidebar = () => {
                 <Filter className="w-5 h-5 mr-2 text-primary" />
                 Refine Search
             </h3>
-            
+
             <Separator />
 
             {/* 1. Location Filter */}
@@ -86,7 +86,7 @@ const FilterSidebar = () => {
                 </label>
                 <LocationSliderWithLabel />
             </div>
-            
+
             <Separator />
 
             {/* 2. Age Filter */}
@@ -100,13 +100,13 @@ const FilterSidebar = () => {
                         return (
                             <Button 
                                 className="
-                                    transition-all 
-                                    duration-200 
-                                    ease-in-out 
-                                    hover:shadow-lg 
-                                    hover:-translate-y-px
-                                    border border-transparent
-                                    hover:border-gray-400
+                                transition-all 
+                                duration-200 
+                                ease-in-out 
+                                hover:shadow-lg 
+                                hover:-translate-y-px
+                                border border-transparent
+                                hover:border-gray-400
                                 "
                                 key={age} 
                                 variant={isSelected ? "default" : "secondary"} 
@@ -136,13 +136,13 @@ const FilterSidebar = () => {
                         return (
                             <Button 
                                 className="
-                                    transition-all 
-                                    duration-200 
-                                    ease-in-out 
-                                    hover:shadow-lg 
-                                    hover:-translate-y-px
-                                    border border-transparent
-                                    hover:border-gray-400
+                                transition-all 
+                                duration-200 
+                                ease-in-out 
+                                hover:shadow-lg 
+                                hover:-translate-y-px
+                                border border-transparent
+                                hover:border-gray-400
                                 "
                                 key={size} 
                                 variant={isSelected ? "default" : "secondary"}
@@ -161,30 +161,30 @@ const FilterSidebar = () => {
 
             {/* Temporary Alert Saying Feature Doesn't Work */}
             <AlertDialog>
-            <AlertDialogTrigger asChild>
+                <AlertDialogTrigger asChild>
 
-                {/* This button is important tho */}
-                <Button 
-                    className="w-full mt-6 flex items-center"
-                    onClick={handleApplyFilters} 
-                >
-                    <Search className="w-4 h-4 mr-2" />
-                    Apply Filters
-                </Button>
+                    {/* This button is important tho */}
+                    <Button 
+                        className="w-full mt-6 flex items-center"
+                        onClick={handleApplyFilters} 
+                    >
+                        <Search className="w-4 h-4 mr-2" />
+                        Apply Filters
+                    </Button>
 
 
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-                <AlertDialogHeader>
-                <AlertDialogTitle>Feature Temporarily Unavailable</AlertDialogTitle>
-                <AlertDialogDescription>
-                    Sorry for the inconvenience! The filtering functionality is currently under maintenance and will be back soon.
-                </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                <AlertDialogAction>Return</AlertDialogAction>
-                </AlertDialogFooter>
-            </AlertDialogContent>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Feature Temporarily Unavailable</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Sorry for the inconvenience! The filtering functionality is currently under maintenance and will be back soon.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogAction>Return</AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
             </AlertDialog>
         </div>
     )
@@ -215,13 +215,13 @@ export function ExplorePets({ initialPets, initialCount }: ExplorePetsProps) {
             const fetchedPets = await getPets(count, offset);
             setPets(fetchedPets);
             setPageNumber(page);
-            
+
             // Scroll user to the Ref's position for smooth UX
             if (petGridRef.current) {
                 // Scroll to the very top of the page for smooth UX
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             }
-            
+
         } catch (error) {
             console.error("Failed to fetch page:", error);
         } finally {
@@ -243,10 +243,17 @@ export function ExplorePets({ initialPets, initialCount }: ExplorePetsProps) {
         }
     };
 
+    const goToPage = (page: number) => {
+        if (isLoading) return;
+        if (page < 0 || page > TOTAL_PAGES - 1) return; // bounds (0-indexed)
+        if (page === pageNumber) return; // already there
+        fetchPage(page);
+    };
+
     return (
         <section className="w-full bg-background py-12 px-4 md:px-8">
             <div className="max-w-7xl mx-auto space-y-10">
-                
+
                 {/* Title Section */}
                 <div className="text-center">
                     <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-foreground">
@@ -261,7 +268,7 @@ export function ExplorePets({ initialPets, initialCount }: ExplorePetsProps) {
 
                 {/* Main Layout: Filters and Pet Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-                    
+
                     {/* Column 1: Filters */}
                     <div className="md:col-span-1 border-r pr-6 hidden md:block">
                         <FilterSidebar />
@@ -269,10 +276,10 @@ export function ExplorePets({ initialPets, initialCount }: ExplorePetsProps) {
 
                     {/* Column 2-4: Pet Grid and Pagination */}
                     <div className="md:col-span-3 space-y-8">
-                        
+
                         {/* Container for Pet Grid (Scroll Target) */}
                         <div ref={petGridRef} className="space-y-8"> 
-                            
+
                             {/* Pet Grid Display */}
                             {pets.length === 0 && !isLoading ? (
                                 <div className="text-center py-16">
@@ -282,17 +289,17 @@ export function ExplorePets({ initialPets, initialCount }: ExplorePetsProps) {
                                     </p>
                                 </div>
                             ) : (
-                                <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 transition-opacity duration-300 ${isLoading ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
-                                    {pets.map((pet) => (
-                                        <PetCard key={pet.id} pet={pet} />
-                                    ))}
-                                </div>
-                            )}
+                                    <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 transition-opacity duration-300 ${isLoading ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
+                                        {pets.map((pet) => (
+                                            <PetCard key={pet.id} pet={pet} />
+                                        ))}
+                                    </div>
+                                )}
                         </div>
-                        
+
                         {/* PAGINATION CONTROLS (Stable Layout) */}
                         <div className="flex justify-between items-center pt-8">
-                            
+
                             {/* Previous button wrapper (always occupies space: w-1/3) */}
                             <div className="w-1/3 flex justify-start">
                                 <Button
@@ -309,11 +316,20 @@ export function ExplorePets({ initialPets, initialCount }: ExplorePetsProps) {
                             </div>
 
                             {/* Page Number (centered: w-1/3) */}
-                            <div className="w-1/3 flex justify-center">
-                                <span className="text-sm text-muted-foreground">
-                                    {/* Convert 0-indexed state back to 1-indexed for display */}
-                                    Page {pageNumber + 1}
-                                </span>
+                            <div className="w-1/3 flex justify-center gap-2 flex-wrap">
+                                {Array.from({ length: TOTAL_PAGES }, (_, i) => (
+                                    <Button
+                                        key={i}
+                                        variant={i === pageNumber ? "default" : "outline"}
+                                        size="sm"
+                                        onClick={() => goToPage(i)}
+                                        disabled={isLoading}
+                                        className="min-w-9"
+                                        aria-current={i === pageNumber ? "page" : undefined}
+                                    >
+                                        {i + 1}
+                                    </Button>
+                                ))}
                             </div>
 
                             {/* Next button wrapper (always occupies space: w-1/3) */}
