@@ -1,17 +1,11 @@
 'use client'
 
-import { createClient } from '@supabase/supabase-js'
+import { createBrowserClient as createSupabaseBrowserClient } from '@supabase/ssr'
 
+/** Browser Supabase client; uses cookies so server can read session. */
 export function createBrowserClient() {
-  return createClient(
+  return createSupabaseBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, 
-    {
-      auth: {
-        persistSession: true,
-        autoRefreshToken: true,
-        detectSessionInUrl: true
-      }
-    }
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   )
 }

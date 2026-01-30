@@ -1,5 +1,7 @@
 export interface Shelter {
     id: number,
+    /** Links shelter to auth user when shelter signs up via the platform */
+    user_id: string | null,
     name: string | null,
     address: string | null,
     city: string | null,
@@ -10,5 +12,5 @@ export interface Shelter {
     updated_at: string | null,
     latitude: number | null,
     longitude: number | null,
-    coordinate: any
+    coordinate: unknown
 }

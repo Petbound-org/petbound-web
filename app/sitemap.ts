@@ -7,7 +7,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Fetch pet data from Supabase
   const { data: pets, error } = await supabase
     .from("pets")
-    .select("id, updatedAt");
+    .select("id, updated_at");
 
   if (error) {
     console.error("Sitemap Supabase Error:", error);
@@ -23,9 +23,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   // Dynamic pet pages
-  const petPages = (pets || []).map((p: { id: string; updatedAt: string }) => ({
+  const petPages = (pets || []).map((p: { id: number; updated_at: string | null }) => ({
     url: `https://petbound.org/pets/${p.id}`,
-    lastModified: new Date(p.updatedAt),
+    lastModified: p.updated_at ? new Date(p.updated_at) : new Date(),
   }));
 
   return [...staticPages, ...petPages];

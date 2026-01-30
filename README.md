@@ -51,6 +51,15 @@ bun install
 
 Create your own supabase project and store your anon key, service role key, and supabase url in a .env file.
 
+For shelter sign-up to work, the `shelters` table must have a `user_id` column (UUID, references `auth.users.id`). Add it with a migration if it does not exist.
+
+**Confirmation emails (user & shelter sign-up):** Supabase sends these. By default, the built-in provider only sends to pre-authorized (team) addresses and has tight rate limits. To have sign-up confirmation emails delivered to any user:
+
+1. In the Supabase Dashboard go to **Authentication → Providers → Email** and ensure **Confirm email** is enabled if you want verification.
+2. In **Project Settings → Auth → SMTP Settings** configure a custom SMTP provider (e.g. Resend, SendGrid, AWS SES) so emails are sent reliably to all addresses. See [Supabase: Send emails with custom SMTP](https://supabase.com/docs/guides/auth/auth-smtp).
+
+**Password reset:** The app sends reset links to `https://your-domain/auth/reset-password`. In Supabase Dashboard **Authentication → URL Configuration**, add `https://your-domain/auth/reset-password` (and `http://localhost:3000/auth/reset-password` for local dev) to **Redirect URLs**.
+
 ### **4. Run your Server!**
 
 ```bash

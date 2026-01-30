@@ -2,6 +2,7 @@
 
 import { Pet } from "@/lib/types/pet.interface"
 import { supabase } from "@/lib/supabaseClient"
+import { createServerSupabaseClient } from "@/lib/supabaseServer"
 
 // Define the page size constant here as well, so the calculation is centralized
 const PETS_PER_PAGE = 30; 
@@ -38,4 +39,52 @@ export async function getPets(
   }
 
   return pets as Pet[];
+}
+
+export type CreateShelterProfileResult = { ok: true } | { ok: false; error: string }
+
+/**
+ * Creates a shelter profile linked to the current auth user.
+ * Call after a shelter signs up (user must have user_metadata.role === 'shelter').
+ * Requires the shelters table to have a user_id column (uuid, references auth.users).
+ */
+export async function createShelterProfile(
+  name: string,
+  phone?: string | null
+): Promise<CreateShelterProfileResult> {
+  const serverSupabase = await createServerSupabaseClient()
+  const { data: { user }, error: userError } = await serverSupabase.auth.getUser()
+
+  if (userError || !user) {
+    return { ok: false, error: "Not authenticated." }
+  }
+
+  const role = (user.user_metadata?.role as string) ?? ""
+  if (role !== "shelter") {
+    return { ok: false, error: "Only shelter accounts can create a shelter profile." }
+  }
+
+  const { data: existing } = await supabase
+    .from("shelters")
+    .select("id")
+    .eq("user_id", user.id)
+    .limit(1)
+    .maybeSingle()
+
+  if (existing) {
+    return { ok: true }
+  }
+
+  const { error: insertError } = await supabase.from("shelters").insert({
+    user_id: user.id,
+    name: name.trim() || null,
+    email: user.email ?? null,
+    phone_number: phone?.trim() || null,
+  })
+
+  if (insertError) {
+    return { ok: false, error: insertError.message }
+  }
+
+  return { ok: true }
 }
