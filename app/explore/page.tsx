@@ -1,6 +1,6 @@
 // app/explore/page.tsx
 
-import { ExplorePets } from "@/components/ui/explore-pets"
+import { ExplorePets } from "@/components/ui/explore/explore-pets"
 import { getPets } from "@/lib/server-actions" // Use the new Server Action
 import { Pet } from "@/lib/types/pet.interface"
 // Note: Removed redundant supabase import as it's used only inside getPets
