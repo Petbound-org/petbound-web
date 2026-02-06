@@ -1,6 +1,6 @@
 import * as React from "react"
 import Link from "next/link"
-import { User, PawPrint, BarChart3 } from "lucide-react"
+import { User, PawPrint, BarChart3, Home } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
@@ -20,6 +20,12 @@ function ShelterNavbar({ className, ...props }: React.HTMLAttributes<HTMLElement
         
         {/* Right: Navigation Buttons */}
         <div className="flex items-center space-x-4">
+          <Button variant="ghost" asChild className="flex items-center gap-2">
+            <Link href="/">
+              <Home className="h-4 w-4" />
+              Home
+            </Link>
+          </Button>
           <Button variant="ghost" asChild className="flex items-center gap-2">
             <Link href="/shelter/profile">
               <User className="h-4 w-4" />
