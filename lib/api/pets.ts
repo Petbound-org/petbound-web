@@ -3,7 +3,7 @@ import "server-only"
 import { revalidateTag, unstable_cache } from "next/cache"
 
 import { PETS_PER_PAGE } from "@/lib/pets-pagination"
-import { supabase } from "@/lib/supabase"
+import { isSupabaseConfigured, supabase } from "@/lib/supabase"
 import { CACHE_TAGS, CACHE_TTL } from "@/lib/cache"
 import type { Pet } from "@/lib/types/pet.interface"
 
@@ -29,6 +29,10 @@ async function fetchPets(
   page: number,
   filters: PetListFilters,
 ): Promise<Pet[]> {
+  if (!isSupabaseConfigured()) {
+    return []
+  }
+
   const ageFilters = filters.ages?.length ? filters.ages : null
   const sizeFilters = filters.sizes?.length ? filters.sizes : null
 
@@ -50,6 +54,10 @@ async function fetchPets(
 }
 
 async function fetchNearbyPets(count: number): Promise<Pet[]> {
+  if (!isSupabaseConfigured()) {
+    return []
+  }
+
   const { data, error } = await supabase.rpc("get_nearby_pets", {
     user_lat: DEFAULT_LAT,
     user_lon: DEFAULT_LON,
@@ -65,6 +73,10 @@ async function fetchNearbyPets(count: number): Promise<Pet[]> {
 }
 
 async function fetchPetById(id: number): Promise<Pet | null> {
+  if (!isSupabaseConfigured()) {
+    return null
+  }
+
   const { data, error } = await supabase
     .from("pets")
     .select("*")
@@ -82,6 +94,10 @@ async function fetchPetById(id: number): Promise<Pet | null> {
 async function fetchPetSitemapEntries(): Promise<
   Array<{ id: number; updated_at: string | null }>
 > {
+  if (!isSupabaseConfigured()) {
+    return []
+  }
+
   const primary = await supabase.from("pets").select("id, updated_at")
 
   if (!primary.error) {
