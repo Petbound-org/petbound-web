@@ -3,83 +3,101 @@
 import * as React from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { Button } from "@/components/ui/button"
 import { Heart } from "lucide-react"
-import { Pet } from "@/lib/types/pet.interface"
 
-type PetCardProps = {
+import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
+import { useFavorites } from "@/lib/favorites-context"
+import type { Pet } from "@/lib/types/pet.interface"
+
+interface PetCardProps {
   pet: Pet
 }
 
 export function PetCard({ pet }: PetCardProps) {
-  const [liked, setLiked] = React.useState(false)
+  const { isFavorited, toggleFavorite } = useFavorites()
+  const liked = isFavorited(pet.id)
   const [animating, setAnimating] = React.useState(false)
 
-  const handleLike = () => {
-    if (!liked) {
-      // Only animate when liking
-      setAnimating(true)
-      setTimeout(() => setAnimating(false), 300)
-    }
-    setLiked(!liked)
+  const bumpAnimation = () => {
+    setAnimating(true)
+    window.setTimeout(() => setAnimating(false), 280)
+  }
+
+  const handleLike = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (!liked) bumpAnimation()
+    toggleFavorite(pet)
   }
 
   const handleDoubleClick = (e: React.MouseEvent) => {
-    // Prevent triggering if clicked on a button inside the card
-    if ((e.target as HTMLElement).closest("button")) return
+    if ((e.target as HTMLElement).closest("button, a")) return
     if (!liked) {
-      setLiked(true)
-      setAnimating(true)
-      setTimeout(() => setAnimating(false), 300)
+      bumpAnimation()
+      toggleFavorite(pet)
     }
   }
 
+  const hasImage = pet.image_urls && pet.image_urls.length > 0
+
   return (
     <div
-      className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden flex flex-col cursor-pointer"
+      className="group bg-card text-card-foreground border border-border rounded-xl shadow-sm hover:shadow-md transition-shadow overflow-hidden flex flex-col"
       onDoubleClick={handleDoubleClick}
     >
-      {/* Pet image */}
-      <div className="relative h-48 w-full overflow-hidden">
-        {pet.image_urls && pet.image_urls.length > 0 ? (
-          <img
-            src={pet.image_urls[0]}
-            alt={pet.name || "Pet photo"}
-            className="w-full h-full object-cover"
+      <Link
+        href={`/pets/${pet.id}`}
+        className="relative h-48 w-full overflow-hidden block bg-muted"
+        aria-label={`View ${pet.name ?? "pet"}`}
+      >
+        {hasImage ? (
+          <Image
+            src={pet.image_urls![0]}
+            alt={pet.name ?? "Pet photo"}
+            fill
+            sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gray-200 dark:bg-gray-700">
-            <Heart className="w-16 h-16 text-gray-400 dark:text-gray-500" />
+          <div className="w-full h-full flex items-center justify-center">
+            <Heart className="w-16 h-16 text-muted-foreground/40" />
           </div>
         )}
-      </div>
+      </Link>
 
-      {/* Pet details */}
-      <div className="p-4 flex flex-col flex-1 justify-between">
-        <div>
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-            {pet.name}
+      <div className="p-4 flex flex-col flex-1 justify-between gap-4">
+        <div className="space-y-1">
+          <h3 className="text-lg font-semibold tracking-tight truncate">
+            {pet.name ?? "Unnamed Pet"}
           </h3>
-          <p className="text-sm text-gray-600 dark:text-gray-300">{pet.breed}</p>
-          <p className="text-sm text-gray-600 dark:text-gray-300">{pet.age}</p>
+          {pet.breed && (
+            <p className="text-sm text-muted-foreground truncate">{pet.breed}</p>
+          )}
+          {pet.age && (
+            <p className="text-sm text-muted-foreground">{pet.age}</p>
+          )}
         </div>
 
-        {/* Buttons */}
-        <div className="mt-4 flex items-center gap-2">
-          <Link href={`/pets/${pet.id}`} className="flex-1">
-            <Button variant="default" className="w-full">
-              More Info
-            </Button>
-          </Link>
+        <div className="flex items-center gap-2">
+          <Button variant="default" className="flex-1" asChild>
+            <Link href={`/pets/${pet.id}`}>More Info</Link>
+          </Button>
           <Button
             variant="outline"
             className="p-2 flex items-center justify-center"
             onClick={handleLike}
+            aria-pressed={liked}
+            aria-label={liked ? "Remove from saved" : "Save pet"}
           >
             <Heart
-              className={`h-5 w-5 transition-transform duration-300 ${
-                liked ? "text-red-500 fill-red-500" : "text-gray-400 dark:text-gray-300 fill-transparent"
-              } ${animating ? "scale-125" : "scale-100"}`}
+              className={cn(
+                "h-5 w-5 transition-transform duration-300",
+                liked
+                  ? "text-red-500 fill-red-500"
+                  : "text-muted-foreground fill-transparent",
+                animating && "scale-125",
+              )}
             />
           </Button>
         </div>

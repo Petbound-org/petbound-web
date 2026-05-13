@@ -1,81 +1,122 @@
-"use client";
+"use client"
 
-import * as React from "react";
-import { PetCard } from "@/components/ui/pet-card";
-import { Pet } from "@/lib/types/pet.interface";
-import { Separator } from "@/components/ui/separator";
-import { Button } from "@/components/ui/button";
-import { AlertCircle, ChevronLeft, ChevronRight } from "lucide-react";
+import * as React from "react"
 
-import { FilterSidebar, PetFilters } from "./filter-sidebar";
-import { getPets } from "@/lib/server-actions";
+import { Button } from "@/components/ui/button"
+import { Separator } from "@/components/ui/separator"
+import { PetCard } from "@/components/ui/pet-card"
+import { AlertCircle, ChevronLeft, ChevronRight, Loader2 } from "lucide-react"
 
-/**
- * Pagination configuration.
- * Replace TOTAL_PETS_ESTIMATE with a real count from your DB later.
- */
-const PETS_PER_PAGE = 30;
-const TOTAL_PETS_ESTIMATE = 120;
-const TOTAL_PAGES = Math.ceil(TOTAL_PETS_ESTIMATE / PETS_PER_PAGE);
+import { FilterSidebar, type PetFilters } from "./filter-sidebar"
+import {
+  fetchPetsPage,
+  resolveFilteredPetsTotalPages,
+} from "@/lib/server-actions"
+import type { Pet } from "@/lib/types/pet.interface"
+import { PETS_PER_PAGE } from "@/lib/pets-pagination"
 
-/**
- * ExplorePets
- * ------------
- * The "smart" component for the Explore page.
- *
- * Owns:
- * - filter state
- * - pagination state
- * - fetching pets
- *
- * Delegates:
- * - UI controls → FilterSidebar
- * - individual pet rendering → PetCard
- */
+const DEFAULT_FILTERS: PetFilters = {
+  radiusMiles: 50,
+  ages: [],
+  sizes: [],
+}
+
+function initialTotalPagesHint(pets: Pet[]): number | null {
+  if (pets.length === 0) return 1
+  if (pets.length < PETS_PER_PAGE) return 1
+  return null
+}
+
 interface ExplorePetsProps {
-  initialPets: Pet[];
+  initialPets: Pet[]
 }
 
 export function ExplorePets({ initialPets }: ExplorePetsProps) {
-  const [pets, setPets] = React.useState<Pet[]>(initialPets);
-  const [pageNumber, setPageNumber] = React.useState(0);
-  const [isLoading, setIsLoading] = React.useState(false);
+  const [pets, setPets] = React.useState<Pet[]>(initialPets)
+  const [pageNumber, setPageNumber] = React.useState(0)
+  const [isLoading, setIsLoading] = React.useState(false)
+  const [filters, setFilters] = React.useState<PetFilters>(DEFAULT_FILTERS)
+  const [totalPages, setTotalPages] = React.useState<number | null>(() =>
+    initialTotalPagesHint(initialPets),
+  )
 
-  const [filters, setFilters] = React.useState<PetFilters>({
-    radiusMiles: 50,
-    ages: [],
-    sizes: [],
-  });
+  React.useEffect(() => {
+    if (initialPets.length < PETS_PER_PAGE) return
 
-  const fetchPage = async (page: number, nextFilters = filters) => {
-    setIsLoading(true);
-    try {
-      const fetchedPets = await getPets(
-        PETS_PER_PAGE,
-        page,
-        nextFilters
-      );
-      setPets(fetchedPets);
-      setPageNumber(page);
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    } catch (err) {
-      console.error("Failed to fetch pets", err);
-    } finally {
-      setIsLoading(false);
+    let cancelled = false
+    void resolveFilteredPetsTotalPages(DEFAULT_FILTERS).then((t) => {
+      if (!cancelled) setTotalPages(t)
+    })
+    return () => {
+      cancelled = true
     }
-  };
+  }, [initialPets.length])
 
-  const applyFilters = () => {
-    if (!isLoading) fetchPage(0, filters);
-  };
+  const fetchPage = React.useCallback(
+    async (page: number, nextFilters: PetFilters) => {
+      setIsLoading(true)
+      try {
+        const fetched = await fetchPetsPage(page, nextFilters)
+        setPets(fetched)
+        setPageNumber(page)
+        if (fetched.length < PETS_PER_PAGE) {
+          setTotalPages(page + 1)
+        }
+        window.scrollTo({ top: 0, behavior: "smooth" })
+      } catch (err) {
+        console.error("Failed to fetch pets", err)
+      } finally {
+        setIsLoading(false)
+      }
+    },
+    [],
+  )
+
+  const applyingRef = React.useRef(false)
+
+  const applyFilters = React.useCallback(async () => {
+    if (applyingRef.current) return
+    applyingRef.current = true
+    setIsLoading(true)
+    try {
+      const [fetched, total] = await Promise.all([
+        fetchPetsPage(0, filters),
+        resolveFilteredPetsTotalPages(filters),
+      ])
+      setPets(fetched)
+      setPageNumber(0)
+      setTotalPages(total)
+      window.scrollTo({ top: 0, behavior: "smooth" })
+    } catch (err) {
+      console.error("Failed to fetch pets", err)
+    } finally {
+      setIsLoading(false)
+      applyingRef.current = false
+    }
+  }, [filters])
+
+  const pageLabel =
+    totalPages === null ? (
+      <span className="text-sm text-muted-foreground tabular-nums">
+        Page {pageNumber + 1}
+        <span className="ml-1 opacity-70">/ …</span>
+      </span>
+    ) : (
+      <span className="text-sm text-muted-foreground tabular-nums">
+        Page {pageNumber + 1} of {totalPages}
+      </span>
+    )
+
+  const canGoNext =
+    totalPages === null
+      ? pets.length === PETS_PER_PAGE
+      : pageNumber < totalPages - 1
 
   return (
     <section className="w-full bg-background py-12 px-4 md:px-8">
       <div className="max-w-7xl mx-auto space-y-10">
         <div className="text-center">
-          <h1 className="text-4xl font-bold">
-            Find Your Life-Saving Match
-          </h1>
+          <h1 className="text-4xl font-bold">Find Your Life-Saving Match</h1>
           <p className="mt-3 text-muted-foreground">
             Filter by distance and criteria to discover the right pet.
           </p>
@@ -94,7 +135,12 @@ export function ExplorePets({ initialPets }: ExplorePetsProps) {
           </div>
 
           <div className="md:col-span-3 space-y-8">
-            {pets.length === 0 && !isLoading ? (
+            {isLoading ? (
+              <div className="flex items-center justify-center py-24 text-muted-foreground">
+                <Loader2 className="w-6 h-6 animate-spin mr-2" />
+                Loading pets…
+              </div>
+            ) : pets.length === 0 ? (
               <div className="text-center py-16">
                 <AlertCircle className="mx-auto mb-4" />
                 <p>No pets found. Try adjusting filters.</p>
@@ -107,21 +153,22 @@ export function ExplorePets({ initialPets }: ExplorePetsProps) {
               </div>
             )}
 
-            {/* Pagination */}
             <div className="flex justify-between items-center pt-8">
               <Button
                 variant="outline"
                 disabled={pageNumber === 0 || isLoading}
-                onClick={() => fetchPage(pageNumber - 1)}
+                onClick={() => fetchPage(pageNumber - 1, filters)}
               >
                 <ChevronLeft className="w-4 h-4 mr-1" />
                 Previous
               </Button>
 
+              {pageLabel}
+
               <Button
                 variant="outline"
-                disabled={pageNumber >= TOTAL_PAGES - 1 || isLoading}
-                onClick={() => fetchPage(pageNumber + 1)}
+                disabled={!canGoNext || isLoading}
+                onClick={() => fetchPage(pageNumber + 1, filters)}
               >
                 Next
                 <ChevronRight className="w-4 h-4 ml-1" />
@@ -131,5 +178,5 @@ export function ExplorePets({ initialPets }: ExplorePetsProps) {
         </div>
       </div>
     </section>
-  );
+  )
 }
