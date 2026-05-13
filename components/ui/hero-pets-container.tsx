@@ -3,7 +3,7 @@ import { getNearbyPets } from "@/lib/api/pets"
 
 /**
  * Server component wrapper around the homepage pet grid.
- * Uses the cached `getNearbyPets` data layer — invalidation is handled by tags.
+ * `getNearbyPets` is uncached + `noStore()` so an empty grid retries on every visit.
  */
 export async function HeroPetsContainer() {
   const totalNeeded = 12

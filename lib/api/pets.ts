@@ -1,6 +1,11 @@
 import "server-only"
 
-import { revalidateTag, unstable_cache } from "next/cache"
+import {
+  revalidateTag,
+  unstable_cache,
+  unstable_noStore as noStore,
+} from "next/cache"
+import { after } from "next/server"
 
 import { PETS_PER_PAGE } from "@/lib/pets-pagination"
 import { isSupabaseConfigured, supabase } from "@/lib/supabase"
@@ -156,29 +161,21 @@ export async function getPets(
 
   const fresh = await fetchPets(page, filters)
   if (fresh.length > 0) {
-    revalidateTag(CACHE_TAGS.pets, "max")
+    after(() => {
+      revalidateTag(CACHE_TAGS.pets, "max")
+    })
   }
   return fresh
 }
 
-const _getNearbyPetsCached = unstable_cache(
-  fetchNearbyPets,
-  ["pets-nearby"],
-  {
-    tags: [CACHE_TAGS.nearbyPets],
-    revalidate: CACHE_TTL.nearbyPets,
-  },
-)
-
+/**
+ * Homepage nearby grid: always live (no unstable_cache).
+ * Empty lists must not stick behind a long TTL or static RSC cache so new pets
+ * show up as soon as they exist.
+ */
 export async function getNearbyPets(count: number): Promise<Pet[]> {
-  const cached = await _getNearbyPetsCached(count)
-  if (cached.length > 0) return cached
-
-  const fresh = await fetchNearbyPets(count)
-  if (fresh.length > 0) {
-    revalidateTag(CACHE_TAGS.nearbyPets, "max")
-  }
-  return fresh
+  noStore()
+  return fetchNearbyPets(count)
 }
 
 export const getPetById = unstable_cache(
@@ -207,7 +204,9 @@ export async function getPetSitemapEntries(): Promise<
 
   const fresh = await fetchPetSitemapEntries()
   if (fresh.length > 0) {
-    revalidateTag(CACHE_TAGS.pets, "max")
+    after(() => {
+      revalidateTag(CACHE_TAGS.pets, "max")
+    })
   }
   return fresh
 }

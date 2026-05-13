@@ -9,7 +9,6 @@
 export const CACHE_TAGS = {
   pets: "pets",
   pet: (id: number | string) => `pet-${id}`,
-  nearbyPets: "nearby-pets",
   shelter: (id: number | string) => `shelter-${id}`,
 } as const
 
@@ -18,8 +17,6 @@ export const CACHE_TTL = {
   petsList: 60 * 30,
   /** Pet detail — refreshed hourly. */
   petDetail: 60 * 60,
-  /** Home page nearby grid — refreshed every 15 minutes. */
-  nearbyPets: 60 * 15,
   /** Shelter detail — refreshed hourly. */
   shelterDetail: 60 * 60,
   /** Sitemap pet listing — refreshed daily. */
