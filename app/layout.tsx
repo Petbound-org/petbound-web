@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 import "./globals.css"
 import { Navbar } from "@/components/ui/navbar"
@@ -51,6 +52,7 @@ export default function RootLayout({
           <main className="flex-1">{children}</main>
           <Footer />
         </FavoritesProvider>
+        <SpeedInsights />
       </body>
     </html>
   )
