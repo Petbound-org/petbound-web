@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import { SpeedInsights } from "@vercel/speed-insights/next"
+import { GoogleAnalytics } from "@next/third-parties/google"
 
 import "./globals.css"
 import { Navbar } from "@/components/ui/navbar"
@@ -54,6 +55,7 @@ export default function RootLayout({
         </FavoritesProvider>
         <SpeedInsights />
       </body>
+      <GoogleAnalytics gaId="G-Z8YVVZGJYZ" />
     </html>
   )
 }
