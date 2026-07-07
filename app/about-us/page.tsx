@@ -34,10 +34,10 @@ export default function LearnMorePage() {
                                 <p className="text-base italic text-foreground font-serif">
                                     “Approximately <strong>607,000</strong> shelter animals were euthanized in the U.S. in 2024. Most were simply due to overcrowding and lack of space.”
                                 </p>
-                                <p className="text-base font-bold ext-xl text-foreground">
+                                <p className="text-base font-bold text-xl text-foreground">
                                     At Petbound, we believe we can change this number together.
                                 </p>
-                                <p className="text-base ext-xl text-muted-foreground">
+                                <p className="text-base text-xl text-muted-foreground">
                                     We built Petbound as an adoption platform that fosters critical connections between compassionate homes and animals running out of time. We partner directly with shelters to prioritize visibility for pets on euthanasia lists, ensuring those facing critical deadlines are seen before it’s too late. We exist to save these lives and bring them to the loving homes they deserve.
                                 </p>
                             </div>
@@ -86,7 +86,7 @@ export default function LearnMorePage() {
                             <h3 className="text-lg font-semibold text-foreground">3. Securing the Connection</h3>
                         </div>
                         <p className="text-muted-foreground md:w-2/3 leading-relaxed">
-                            We bridge the gap instantly by connecting you directly with our partnering shelters， ensuring every rescue has a swift, smooth transition to a forever home.
+                            We bridge the gap instantly by connecting you directly with our partnering shelters, ensuring every rescue has a swift, smooth transition to a forever home.
                         </p>
                     </div>
                 </section>
