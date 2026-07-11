@@ -34,8 +34,29 @@ export const metadata: Metadata = {
     description:
       "The adoption platform built exclusively for animals at risk of euthanasia.",
     type: "website",
+    siteName: "Petbound",
     url: "https://petbound.org",
+    images: [{ url: "/images/logo-7.png" }],
   },
+  twitter: {
+    card: "summary",
+    title: "Petbound",
+    description:
+      "The adoption platform built exclusively for animals at risk of euthanasia.",
+    images: ["/images/logo-7.png"],
+  },
+}
+
+const organizationJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "NGO",
+  name: "Petbound",
+  url: "https://petbound.org",
+  logo: "https://petbound.org/images/logo-7.png",
+  email: "petboundorg@gmail.com",
+  description:
+    "The adoption platform built exclusively for animals at risk of euthanasia.",
+  sameAs: ["https://www.instagram.com/petboundorg/"],
 }
 
 export default function RootLayout({
@@ -48,6 +69,12 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col bg-background text-foreground`}
       >
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(organizationJsonLd),
+          }}
+        />
         <FavoritesProvider>
           <Navbar />
           <main className="flex-1">{children}</main>
