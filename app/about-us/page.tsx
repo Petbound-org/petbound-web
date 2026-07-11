@@ -1,9 +1,14 @@
-// app/learn-more/page.tsx
-"use client"
-
 import { Card, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { ShieldAlert, Globe, PawPrint, HeartHandshake, Pin, Megaphone, Search, HeartPulse } from "lucide-react"
+
+export const metadata = {
+  // Root layout title template appends "— Petbound".
+  title: "About Us",
+  description:
+    "Petbound partners directly with shelters to prioritize visibility for pets on euthanasia lists, connecting them with adopters before it's too late.",
+  alternates: { canonical: "/about-us" },
+}
 
 export default function LearnMorePage() {
     return (

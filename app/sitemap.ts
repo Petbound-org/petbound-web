@@ -6,7 +6,8 @@ import { getPetSitemapEntries } from "@/lib/api/pets"
 export const revalidate = 86400
 
 const BASE_URL = "https://petbound.org"
-const STATIC_PATHS = ["/", "/explore", "/about-us", "/saved"] as const
+// /saved is intentionally excluded: it's a noindex, device-local page.
+const STATIC_PATHS = ["/", "/explore", "/about-us"] as const
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const pets = await getPetSitemapEntries()

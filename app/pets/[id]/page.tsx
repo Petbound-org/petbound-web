@@ -37,20 +37,40 @@ function cleanEuthanasiaReason(input: string | null): string | null {
 }
 
 export async function generateMetadata({ params }: PetPageProps) {
+  // Root layout title template appends "— Petbound", so titles here stay bare.
   const { id } = await params
   const petId = Number(id)
   if (!Number.isFinite(petId)) {
-    return { title: "Pet — Petbound" }
+    return { title: "Pet" }
   }
   const pet = await getPetById(petId)
   if (!pet) {
-    return { title: "Pet Not Found — Petbound" }
+    return { title: "Pet Not Found", robots: { index: false } }
   }
+
+  const title = pet.name ?? "Adoptable Pet"
+  const description =
+    cleanDescription(pet.description).slice(0, 160) ||
+    `Help adopt ${pet.name ?? "this pet"} before time runs out.`
+  const image = pet.image_urls?.[0]
+
   return {
-    title: `${pet.name ?? "Pet"} — Petbound`,
-    description:
-      pet.description?.slice(0, 160) ??
-      `Help adopt ${pet.name ?? "this pet"} before time runs out.`,
+    title,
+    description,
+    alternates: { canonical: `/pets/${petId}` },
+    openGraph: {
+      title: `${title} — Petbound`,
+      description,
+      type: "website",
+      url: `/pets/${petId}`,
+      ...(image ? { images: [{ url: image }] } : {}),
+    },
+    twitter: {
+      card: image ? "summary_large_image" : "summary",
+      title: `${title} — Petbound`,
+      description,
+      ...(image ? { images: [image] } : {}),
+    },
   }
 }
 
@@ -109,7 +129,11 @@ export default async function PetPage({ params }: PetPageProps) {
                 <div className="relative w-full aspect-[4/3] overflow-hidden rounded-2xl shadow-2xl bg-muted">
                   <Image
                     src={pet.image_urls![0]}
-                    alt={pet.name ?? "Pet photo"}
+                    alt={
+                      pet.name
+                        ? `${pet.name}${pet.breed ? `, a ${pet.breed}` : ""}, available for adoption`
+                        : "Adoptable pet photo"
+                    }
                     fill
                     sizes="(min-width: 1024px) 50vw, 100vw"
                     className="object-cover"
