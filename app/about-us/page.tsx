@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
-import { ShieldAlert, Globe, PawPrint, HeartHandshake, Pin, Megaphone, Search, HeartPulse } from "lucide-react"
+import { ShieldAlert, Globe, HeartHandshake, Search } from "lucide-react"
 
 export const metadata = {
   // Root layout title template appends "— Petbound".
@@ -21,7 +21,7 @@ export default function LearnMorePage() {
                         <span className="text-primary">Petbound</span>
                     </h1>
                     <p className="mt-4 text-xl text-muted-foreground max-w-3xl">
-                        Connecting the lifeline for pets who can't wait.
+                        Connecting the lifeline for pets who can&apos;t wait.
                     </p>
                 </header>
                 

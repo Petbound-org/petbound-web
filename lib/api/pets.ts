@@ -103,35 +103,39 @@ async function fetchPetSitemapEntries(): Promise<
     return []
   }
 
-  const primary = await supabase.from("pets").select("id, updated_at")
+  // Only currently listed pets (euthanasia date not yet passed) belong in the
+  // sitemap; the table retains past listings. Supabase caps responses at
+  // 1,000 rows per request, so page until a short page.
+  const today = new Date().toISOString().slice(0, 10)
+  const PAGE_SIZE = 1000
+  const entries: Array<{ id: number; updated_at: string | null }> = []
 
-  if (!primary.error) {
-    return (primary.data ?? []).map((row) => ({
-      id: row.id as number,
-      updated_at: (row as { updated_at: string | null }).updated_at ?? null,
-    }))
-  }
+  for (let from = 0; ; from += PAGE_SIZE) {
+    const { data, error } = await supabase
+      .from("pets")
+      .select("id, updated_at")
+      .gte("euthanasia_date", today)
+      .order("id", { ascending: true })
+      .range(from, from + PAGE_SIZE - 1)
 
-  if (primary.error.code === "42703") {
-    const fallback = await supabase.from("pets").select("id")
-    if (fallback.error) {
-      console.error(
-        "[api/pets] fetchPetSitemapEntries fallback error:",
-        fallback.error,
-      )
+    if (error) {
+      console.error("[api/pets] fetchPetSitemapEntries error:", error)
       return []
     }
-    return (fallback.data ?? []).map((row) => ({
-      id: row.id as number,
-      updated_at: null,
-    }))
+
+    for (const row of data ?? []) {
+      entries.push({
+        id: row.id as number,
+        updated_at: (row as { updated_at: string | null }).updated_at ?? null,
+      })
+    }
+
+    if (!data || data.length < PAGE_SIZE) {
+      break
+    }
   }
 
-  console.error(
-    "[api/pets] fetchPetSitemapEntries error:",
-    primary.error,
-  )
-  return []
+  return entries
 }
 
 // ---------------------------------------------------------------------------

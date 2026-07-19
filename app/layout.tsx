@@ -25,7 +25,7 @@ export const metadata: Metadata = {
   },
   description:
     "The adoption platform built exclusively for animals at risk of euthanasia.",
-  metadataBase: new URL("https://petbound.org"),
+  metadataBase: new URL("https://www.petbound.org"),
   icons: {
     icon: "/images/logo-7.png",
   },
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
       "The adoption platform built exclusively for animals at risk of euthanasia.",
     type: "website",
     siteName: "Petbound",
-    url: "https://petbound.org",
+    url: "https://www.petbound.org",
     images: [{ url: "/images/logo-7.png" }],
   },
   twitter: {
@@ -51,8 +51,8 @@ const organizationJsonLd = {
   "@context": "https://schema.org",
   "@type": "NGO",
   name: "Petbound",
-  url: "https://petbound.org",
-  logo: "https://petbound.org/images/logo-7.png",
+  url: "https://www.petbound.org",
+  logo: "https://www.petbound.org/images/logo-7.png",
   email: "petboundorg@gmail.com",
   description:
     "The adoption platform built exclusively for animals at risk of euthanasia.",
