@@ -21,4 +21,8 @@ export const CACHE_TTL = {
   shelterDetail: 60 * 60,
   /** Sitemap pet listing — refreshed daily. */
   sitemap: 60 * 60 * 24,
+  /** Live-pet index powering the SEO hub pages — refreshed every 30 minutes. */
+  hubData: 60 * 30,
+  /** Full shelter list (small, changes rarely) — refreshed daily. */
+  sheltersList: 60 * 60 * 24,
 } as const

@@ -1,13 +1,25 @@
 import Image from "next/image"
+import Link from "next/link"
 import { notFound } from "next/navigation"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { AlertCircle, Mail, Phone, MapPin, Calendar, Heart } from "lucide-react"
+import { AlertCircle, Calendar, Heart, Mail, Phone } from "lucide-react"
 
+import { Breadcrumbs } from "@/components/seo/breadcrumbs"
+import { HubPetGrid } from "@/components/seo/hub-pet-grid"
+import { ShelterContactCard } from "@/components/seo/shelter-contact-card"
+import {
+  getIndexableBreeds,
+  getShelterSlugs,
+  getSimilarPets,
+} from "@/lib/api/hubs"
 import { getPetById } from "@/lib/api/pets"
 import { getShelterById } from "@/lib/api/shelters"
+import { breedSlug, normalizeBreed } from "@/lib/seo/breeds"
+import { slugify, titleCase } from "@/lib/seo/slug"
+import { stateCodeFrom, stateNameFromCode } from "@/lib/seo/states"
 
 interface PetPageProps {
   params: Promise<{ id: string }>
@@ -47,7 +59,21 @@ export async function generateMetadata({ params }: PetPageProps) {
     return { title: "Pet Not Found", robots: { index: false } }
   }
 
-  const title = pet.name ?? "Adoptable Pet"
+  const shelter = pet.shelter_id ? await getShelterById(pet.shelter_id) : null
+  const breed = normalizeBreed(pet.breed)
+  const city = shelter?.city ? titleCase(shelter.city) : null
+  const state = stateCodeFrom(shelter?.state ?? null)
+
+  // "Adopt Max — Labrador Retriever in Bakersfield, CA", degrading gracefully
+  // when breed or location is missing.
+  let title = pet.name ?? "Adoptable Pet"
+  if (pet.name) {
+    const where = city && state ? ` in ${city}, ${state}` : ""
+    title = breed
+      ? `Adopt ${pet.name} — ${breed}${where}`
+      : `Adopt ${pet.name}${where}`
+  }
+
   const description =
     cleanDescription(pet.description).slice(0, 160) ||
     `Help adopt ${pet.name ?? "this pet"} before time runs out.`
@@ -94,9 +120,48 @@ export default async function PetPage({ params }: PetPageProps) {
   const reason = cleanEuthanasiaReason(pet.euthanasia_reason)
   const hasImage = Boolean(pet.image_urls && pet.image_urls.length > 0)
 
+  const [shelterSlugs, indexableBreeds, similarPets] = await Promise.all([
+    getShelterSlugs(),
+    getIndexableBreeds(),
+    getSimilarPets(pet, 4),
+  ])
+
+  const stateCode = stateCodeFrom(shelter?.state ?? null)
+  const stateName = stateCode ? stateNameFromCode(stateCode) : null
+  const cityName = shelter?.city ? titleCase(shelter.city) : null
+  const citySlug = shelter?.city ? slugify(shelter.city) : null
+  const breedName = normalizeBreed(pet.breed)
+  const breedHref =
+    breedName && indexableBreeds.some((b) => b.slug === breedSlug(breedName))
+      ? `/breeds/${breedSlug(breedName)}`
+      : undefined
+  const shelterSlug = shelter
+    ? [...shelterSlugs].find(([, s]) => s.id === shelter.id)?.[0]
+    : undefined
+
+  const crumbs = [
+    { name: "Home", href: "/" },
+    { name: "Adopt", href: "/adopt" },
+    ...(stateCode && stateName
+      ? [{ name: stateName, href: `/adopt/${stateCode.toLowerCase()}` }]
+      : []),
+    ...(stateCode && cityName && citySlug
+      ? [
+          {
+            name: cityName,
+            href: `/adopt/${stateCode.toLowerCase()}/${citySlug}`,
+          },
+        ]
+      : []),
+    { name: pet.name ?? "Pet" },
+  ]
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
       <div className="relative bg-background border-b">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-6">
+          <Breadcrumbs items={crumbs} />
+        </div>
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
             <div className="order-2 lg:order-1 flex items-start">
@@ -238,7 +303,7 @@ export default async function PetPage({ params }: PetPageProps) {
               </CardHeader>
               <CardContent>
                 <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
-                  <DetailItem label="Breed" value={pet.breed} />
+                  <DetailItem label="Breed" value={pet.breed} href={breedHref} />
                   <DetailItem label="Age" value={pet.age} />
                   <DetailItem label="Gender" value={pet.gender} />
                   <DetailItem label="Size" value={pet.size} />
@@ -255,65 +320,10 @@ export default async function PetPage({ params }: PetPageProps) {
 
           <div className="space-y-6">
             {shelter && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-xl">
-                    {shelter.name ?? "Partner Shelter"}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-3">
-                    {(shelter.address || shelter.city || shelter.state) && (
-                      <div className="flex items-start gap-2 text-sm">
-                        <MapPin className="w-4 h-4 mt-0.5 shrink-0 text-muted-foreground" />
-                        <a
-                          href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-                            [shelter.address, shelter.city, shelter.state]
-                              .filter(Boolean)
-                              .join(", "),
-                          )}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="hover:underline"
-                        >
-                          {shelter.address && <div>{shelter.address}</div>}
-                          {(shelter.city || shelter.state) && (
-                            <div>
-                              {[shelter.city, shelter.state]
-                                .filter(Boolean)
-                                .join(", ")}
-                            </div>
-                          )}
-                        </a>
-                      </div>
-                    )}
-
-                    {shelter.phone_number && (
-                      <div className="flex items-center gap-2 text-sm">
-                        <Phone className="w-4 h-4 text-muted-foreground" />
-                        <a
-                          href={`tel:${shelter.phone_number}`}
-                          className="hover:underline"
-                        >
-                          {shelter.phone_number}
-                        </a>
-                      </div>
-                    )}
-
-                    {shelter.email && (
-                      <div className="flex items-center gap-2 text-sm">
-                        <Mail className="w-4 h-4 text-muted-foreground" />
-                        <a
-                          href={`mailto:${shelter.email}`}
-                          className="hover:underline break-all"
-                        >
-                          {shelter.email}
-                        </a>
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
+              <ShelterContactCard
+                shelter={shelter}
+                href={shelterSlug ? `/shelters/${shelterSlug}` : undefined}
+              />
             )}
 
             <Card>
@@ -344,6 +354,27 @@ export default async function PetPage({ params }: PetPageProps) {
             </Card>
           </div>
         </div>
+
+        {similarPets.length > 0 && (
+          <section className="mt-12 space-y-6 border-t pt-10">
+            <div className="flex flex-wrap items-baseline justify-between gap-2">
+              <h2 className="text-2xl font-bold">
+                {breedName
+                  ? `More ${breedName}s who need homes`
+                  : "More pets who need homes"}
+              </h2>
+              {breedHref && (
+                <Link
+                  href={breedHref}
+                  className="text-sm underline text-muted-foreground hover:text-foreground"
+                >
+                  See all adoptable {breedName}s
+                </Link>
+              )}
+            </div>
+            <HubPetGrid pets={similarPets} cap={4} />
+          </section>
+        )}
       </div>
     </div>
   )
@@ -352,15 +383,25 @@ export default async function PetPage({ params }: PetPageProps) {
 function DetailItem({
   label,
   value,
+  href,
 }: {
   label: string
   value: string | null | undefined
+  href?: string
 }) {
   if (!value) return null
   return (
     <div className="space-y-1">
       <dt className="text-sm font-medium text-muted-foreground">{label}</dt>
-      <dd className="text-base font-semibold">{value}</dd>
+      <dd className="text-base font-semibold">
+        {href ? (
+          <Link href={href} className="underline hover:text-primary">
+            {value}
+          </Link>
+        ) : (
+          value
+        )}
+      </dd>
     </div>
   )
 }

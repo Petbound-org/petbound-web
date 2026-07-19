@@ -4,7 +4,7 @@ import { Facebook, Instagram, Twitter, Mail } from "lucide-react"
 export function Footer() {
   return (
     <footer className="w-full bg-gray-900 text-gray-300 py-10 px-6 md:px-12">
-      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
         <div>
           <h3 className="text-2xl font-bold text-white mb-3">Petbound</h3>
           <p className="text-sm text-gray-400">
@@ -43,6 +43,70 @@ export function Footer() {
                 className="hover:text-white transition-colors"
               >
                 Saved Pets
+              </Link>
+            </li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 className="text-lg font-semibold text-white mb-3">
+            Adopt by Location
+          </h4>
+          <ul className="space-y-2 text-sm">
+            <li>
+              <Link
+                href="/adopt"
+                className="hover:text-white transition-colors"
+              >
+                All States
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/adopt/ca"
+                className="hover:text-white transition-colors"
+              >
+                California
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/adopt/tx"
+                className="hover:text-white transition-colors"
+              >
+                Texas
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/adopt/ga"
+                className="hover:text-white transition-colors"
+              >
+                Georgia
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/adopt/nc"
+                className="hover:text-white transition-colors"
+              >
+                North Carolina
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/breeds"
+                className="hover:text-white transition-colors"
+              >
+                Browse by Breed
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/shelters"
+                className="hover:text-white transition-colors"
+              >
+                Partner Shelters
               </Link>
             </li>
           </ul>
