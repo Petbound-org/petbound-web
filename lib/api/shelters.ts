@@ -1,6 +1,7 @@
 import "server-only"
 
-import { unstable_cache } from "next/cache"
+import { revalidateTag, unstable_cache } from "next/cache"
+import { after } from "next/server"
 
 import { isSupabaseConfigured, supabase } from "@/lib/supabase"
 import { CACHE_TAGS, CACHE_TTL } from "@/lib/cache"
@@ -36,3 +37,48 @@ export const getShelterById = unstable_cache(
     revalidate: CACHE_TTL.shelterDetail,
   },
 )
+
+async function fetchAllShelters(): Promise<Shelter[]> {
+  if (!isSupabaseConfigured()) {
+    return []
+  }
+
+  const { data, error } = await supabase
+    .from("shelters")
+    .select("*")
+    .order("name", { ascending: true })
+
+  if (error) {
+    console.error("[api/shelters] fetchAllShelters error:", error)
+    return []
+  }
+
+  return (data ?? []) as Shelter[]
+}
+
+const _getAllSheltersCached = unstable_cache(
+  fetchAllShelters,
+  ["shelters-all"],
+  {
+    tags: [CACHE_TAGS.pets],
+    revalidate: CACHE_TTL.sheltersList,
+  },
+)
+
+/**
+ * Full shelter list for hub pages, slugs, and the sitemap. Mirrors the
+ * empty-result bypass in lib/api/pets.ts: a cached empty list is never
+ * trusted — refetch and bust the tag so the populated result sticks.
+ */
+export async function getAllShelters(): Promise<Shelter[]> {
+  const cached = await _getAllSheltersCached()
+  if (cached.length > 0) return cached
+
+  const fresh = await fetchAllShelters()
+  if (fresh.length > 0) {
+    after(() => {
+      revalidateTag(CACHE_TAGS.pets, "max")
+    })
+  }
+  return fresh
+}

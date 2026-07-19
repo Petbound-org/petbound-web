@@ -68,6 +68,9 @@ function Navbar({ className, ...props }: React.HTMLAttributes<HTMLElement>) {
         </div>
 
         <div className="flex items-center gap-2 sm:gap-3">
+          <Button variant="ghost" asChild className="hidden sm:inline-flex">
+            <Link href="/adopt">Adopt</Link>
+          </Button>
           <Button variant="default" asChild>
             <Link href="/explore">Explore</Link>
           </Button>
