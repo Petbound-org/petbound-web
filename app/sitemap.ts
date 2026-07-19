@@ -5,7 +5,7 @@ import { getPetSitemapEntries } from "@/lib/api/pets"
 // Revalidate daily. Must be a literal for Next's segment config.
 export const revalidate = 86400
 
-const BASE_URL = "https://petbound.org"
+const BASE_URL = "https://www.petbound.org"
 // /saved is intentionally excluded: it's a noindex, device-local page.
 const STATIC_PATHS = ["/", "/explore", "/about-us"] as const
 
