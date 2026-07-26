@@ -169,14 +169,31 @@ export async function getAdoptIndexData(): Promise<AdoptStateSummary[]> {
 
   for (const pet of pets) {
     const code = petStateCode(pet)
-    const citySlug = petCitySlug(pet)
     if (!code) continue
     const state = states.get(code)
     if (!state) continue
     state.petCount += 1
-    if (citySlug) {
-      cityIndex.get(`${code}/${citySlug}`)!.petCount += 1
+
+    const citySlug = petCitySlug(pet)
+    if (!citySlug) continue
+    // A pet's joined shelter can name a city not present in the separately
+    // cached shelters list — the two caches (hub-live-pets, shelters-all) have
+    // independent TTLs and can drift between revalidations. Create the city on
+    // demand instead of dereferencing a missing key (which crashed the page).
+    const cityKey = `${code}/${citySlug}`
+    let city = cityIndex.get(cityKey)
+    if (!city) {
+      city = {
+        slug: citySlug,
+        name: pet.shelter?.city ? titleCase(pet.shelter.city) : citySlug,
+        stateCode: code,
+        petCount: 0,
+        shelterCount: 0,
+      }
+      cityIndex.set(cityKey, city)
+      state.cities.push(city)
     }
+    city.petCount += 1
   }
 
   const summaries = [...states.values()]
