@@ -18,6 +18,7 @@ import {
 import { getPetById } from "@/lib/api/pets"
 import { getShelterById } from "@/lib/api/shelters"
 import { breedSlug, normalizeBreed } from "@/lib/seo/breeds"
+import { petSummary } from "@/lib/seo/pet-summary"
 import { slugify, titleCase } from "@/lib/seo/slug"
 import { stateCodeFrom, stateNameFromCode } from "@/lib/seo/states"
 
@@ -74,9 +75,20 @@ export async function generateMetadata({ params }: PetPageProps) {
       : `Adopt ${pet.name}${where}`
   }
 
-  const description =
-    cleanDescription(pet.description).slice(0, 160) ||
-    `Help adopt ${pet.name ?? "this pet"} before time runs out.`
+  // Unique, data-driven fallback so pages with empty/short shelter descriptions
+  // still get a distinct meta description instead of boilerplate.
+  const summary = petSummary(pet, {
+    cityName: city,
+    stateName: state ? stateNameFromCode(state) : null,
+    shelterName: shelter?.name ?? null,
+    daysLeft: daysLeft(pet.euthanasia_date),
+    reason: cleanEuthanasiaReason(pet.euthanasia_reason),
+    breedName: breed,
+  })
+  const description = (cleanDescription(pet.description).trim() || summary).slice(
+    0,
+    160,
+  )
   const image = pet.image_urls?.[0]
 
   return {
@@ -138,6 +150,15 @@ export default async function PetPage({ params }: PetPageProps) {
   const shelterSlug = shelter
     ? [...shelterSlugs].find(([, s]) => s.id === shelter.id)?.[0]
     : undefined
+
+  const summary = petSummary(pet, {
+    cityName,
+    stateName,
+    shelterName: shelter?.name ?? null,
+    daysLeft: days,
+    reason,
+    breedName,
+  })
 
   const crumbs = [
     { name: "Home", href: "/" },
@@ -290,10 +311,16 @@ export default async function PetPage({ params }: PetPageProps) {
               <CardHeader>
                 <CardTitle className="text-2xl">About {pet.name}</CardTitle>
               </CardHeader>
-              <CardContent>
-                <p className="whitespace-pre-line leading-relaxed text-foreground/90">
-                  {description || "No description available."}
-                </p>
+              <CardContent className="space-y-4">
+                <p className="leading-relaxed text-foreground/90">{summary}</p>
+                {description && (
+                  <>
+                    <hr className="border-border" />
+                    <p className="whitespace-pre-line leading-relaxed text-foreground/90">
+                      {description}
+                    </p>
+                  </>
+                )}
               </CardContent>
             </Card>
 
@@ -332,7 +359,10 @@ export default async function PetPage({ params }: PetPageProps) {
               </CardHeader>
               <CardContent>
                 <ol className="space-y-3 text-sm">
-                  <AdoptionStep n={1} text="Contact the shelter using phone or email" />
+                  <AdoptionStep
+                    n={1}
+                    text={`Contact ${shelter?.name ?? "the shelter"} by phone or email`}
+                  />
                   <AdoptionStep
                     n={2}
                     text="Ask about visitation hours and requirements"
