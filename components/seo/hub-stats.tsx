@@ -1,7 +1,8 @@
 import { AlertCircle } from "lucide-react"
 
 /**
- * Urgency stat band shown near the top of hub pages.
+ * Urgency stat band for hub pages: neutral stat cards with large numbers plus
+ * a red "within 3 days" callout that echoes the pet detail page's danger band.
  */
 export function HubStats({
   stats,
@@ -11,19 +12,23 @@ export function HubStats({
   urgentCount?: number
 }) {
   return (
-    <div className="flex flex-wrap items-center gap-x-8 gap-y-3 rounded-xl border bg-muted/40 px-6 py-4">
+    <div className="flex flex-wrap items-stretch gap-3">
       {stats.map((stat) => (
-        <div key={stat.label} className="flex items-baseline gap-2">
-          <span className="text-2xl font-bold">{stat.value}</span>
-          <span className="text-sm text-muted-foreground">{stat.label}</span>
+        <div
+          key={stat.label}
+          className="rounded-xl border bg-card px-5 py-3 shadow-sm"
+        >
+          <div className="text-3xl font-bold tracking-tight">{stat.value}</div>
+          <div className="text-sm text-muted-foreground">{stat.label}</div>
         </div>
       ))}
       {urgentCount != null && urgentCount > 0 && (
-        <div className="flex items-center gap-2 text-red-700 dark:text-red-400">
-          <AlertCircle className="w-5 h-5" />
-          <span className="text-sm font-semibold">
-            {urgentCount} within 3 days of euthanasia
-          </span>
+        <div className="flex items-center gap-3 rounded-xl border-2 border-red-200 bg-red-50 px-5 py-3 text-red-800 dark:border-red-900 dark:bg-red-950/30 dark:text-red-200">
+          <AlertCircle className="h-6 w-6 shrink-0 text-red-600 dark:text-red-500" />
+          <div>
+            <div className="text-2xl font-bold leading-none">{urgentCount}</div>
+            <div className="mt-0.5 text-xs font-medium">within 3 days</div>
+          </div>
         </div>
       )}
     </div>
