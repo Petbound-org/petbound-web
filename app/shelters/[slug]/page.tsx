@@ -2,6 +2,7 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 
 import { Breadcrumbs } from "@/components/seo/breadcrumbs"
+import { HubHero } from "@/components/seo/hub-hero"
 import { HubPetGrid } from "@/components/seo/hub-pet-grid"
 import { HubStats } from "@/components/seo/hub-stats"
 import { JsonLd } from "@/components/seo/json-ld"
@@ -44,60 +45,58 @@ export default async function ShelterPage({ params }: ShelterPageProps) {
 
   const { shelter, pets, urgentCount, cityName, stateCode, stateName } = data
   const name = shelter.name ?? "Partner Shelter"
+  const hasPets = pets.length > 0
   const cityHref =
     stateCode && data.citySlug
       ? `/adopt/${stateCode.toLowerCase()}/${data.citySlug}`
       : null
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 space-y-10">
-        <JsonLd data={animalShelterJsonLd(shelter, `/shelters/${slug}`)} />
-        {pets.length > 0 && (
-          <JsonLd
-            data={itemListJsonLd({
-              name: `Adoptable pets at ${name}`,
-              urls: pets.slice(0, 24).map((p) => `/pets/${p.id}`),
-            })}
-          />
-        )}
-
-        <Breadcrumbs
-          items={[
-            { name: "Home", href: "/" },
-            { name: "Shelters", href: "/shelters" },
-            { name },
-          ]}
+    <div className="min-h-screen">
+      <JsonLd data={animalShelterJsonLd(shelter, `/shelters/${slug}`)} />
+      {hasPets && (
+        <JsonLd
+          data={itemListJsonLd({
+            name: `Adoptable pets at ${name}`,
+            urls: pets.slice(0, 24).map((p) => `/pets/${p.id}`),
+          })}
         />
+      )}
 
-        <header className="space-y-4">
-          <h1 className="text-4xl sm:text-5xl font-bold tracking-tight">
-            {name}
-          </h1>
-          {cityName && stateName && (
-            <p className="text-xl text-muted-foreground">
-              Animal shelter in {cityName}, {stateName} partnering with
-              Petbound to find homes for pets on the euthanasia list.
-            </p>
-          )}
-        </header>
-
+      <HubHero
+        eyebrow={hasPets ? "Urgent adoptions" : undefined}
+        title={name}
+        description={
+          cityName && stateName
+            ? `Animal shelter in ${cityName}, ${stateName} partnering with Petbound to find homes for pets on the euthanasia list.`
+            : undefined
+        }
+        breadcrumbs={
+          <Breadcrumbs
+            items={[
+              { name: "Home", href: "/" },
+              { name: "Shelters", href: "/shelters" },
+              { name },
+            ]}
+          />
+        }
+      >
         <HubStats
           stats={[{ value: pets.length, label: "pets at risk right now" }]}
           urgentCount={urgentCount}
         />
+      </HubHero>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-          <div className="lg:col-span-2 space-y-6">
-            <h2 className="text-2xl font-bold">
-              {pets.length > 0
-                ? `Pets waiting at ${name}`
-                : "No current listings"}
+      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-3">
+          <div className="space-y-6 lg:col-span-2">
+            <h2 className="text-2xl font-bold tracking-tight">
+              {hasPets ? `Pets waiting at ${name}` : "No current listings"}
             </h2>
-            {pets.length > 0 ? (
+            {hasPets ? (
               <HubPetGrid pets={pets} />
             ) : (
-              <div className="rounded-xl border bg-muted/40 p-6 space-y-4">
+              <div className="space-y-4 rounded-xl border bg-muted/40 p-6">
                 <p className="text-muted-foreground">
                   This shelter has no pets on the euthanasia list right now.
                   Check nearby listings — other pets in the area still need
@@ -119,7 +118,10 @@ export default async function ShelterPage({ params }: ShelterPageProps) {
             {cityHref && cityName && stateName && (
               <p className="text-sm text-muted-foreground">
                 More pets nearby:{" "}
-                <Link href={cityHref} className="underline hover:text-foreground">
+                <Link
+                  href={cityHref}
+                  className="underline hover:text-foreground"
+                >
                   pet adoption in {cityName}, {stateName}
                 </Link>
               </p>

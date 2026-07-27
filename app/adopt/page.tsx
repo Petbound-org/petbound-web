@@ -1,8 +1,10 @@
-import Link from "next/link"
+import { MapPin } from "lucide-react"
 
 import { Breadcrumbs } from "@/components/seo/breadcrumbs"
+import { HubHero } from "@/components/seo/hub-hero"
+import { HubLinkCard } from "@/components/seo/hub-link-card"
+import { HubStats } from "@/components/seo/hub-stats"
 import { JsonLd } from "@/components/seo/json-ld"
-import { Card, CardContent } from "@/components/ui/card"
 
 import { getAdoptIndexData } from "@/lib/api/hubs"
 import { collectionPageJsonLd } from "@/lib/seo/schema"
@@ -18,45 +20,51 @@ export const metadata = {
 
 export default async function AdoptIndexPage() {
   const states = await getAdoptIndexData()
+  const totalPets = states.reduce((sum, s) => sum + s.petCount, 0)
+  const totalShelters = states.reduce((sum, s) => sum + s.shelterCount, 0)
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 space-y-10">
-        <JsonLd
-          data={collectionPageJsonLd({
-            name: "Adopt at-risk shelter pets by state",
-            description: metadata.description,
-            url: "/adopt",
-          })}
+    <div className="min-h-screen">
+      <JsonLd
+        data={collectionPageJsonLd({
+          name: "Adopt at-risk shelter pets by state",
+          description: metadata.description,
+          url: "/adopt",
+        })}
+      />
+
+      <HubHero
+        eyebrow="Urgent adoptions"
+        title="Adopt a Pet Before Time Runs Out"
+        description="Every pet on Petbound is on a shelter euthanasia list. Pick your state to see who needs a home near you."
+        breadcrumbs={
+          <Breadcrumbs items={[{ name: "Home", href: "/" }, { name: "Adopt" }]} />
+        }
+      >
+        <HubStats
+          stats={[
+            { value: totalPets, label: "pets at risk" },
+            { value: states.length, label: "states" },
+            { value: totalShelters, label: "shelters" },
+          ]}
         />
-        <Breadcrumbs items={[{ name: "Home", href: "/" }, { name: "Adopt" }]} />
+      </HubHero>
 
-        <header className="space-y-4">
-          <h1 className="text-4xl sm:text-5xl font-bold tracking-tight">
-            Adopt a Pet Before Time Runs Out
-          </h1>
-          <p className="text-xl text-muted-foreground max-w-3xl">
-            Every pet on Petbound is on a shelter euthanasia list. Pick your
-            state to see who needs a home near you.
-          </p>
-        </header>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="mx-auto max-w-7xl space-y-6 px-4 py-12 sm:px-6 lg:px-8">
+        <h2 className="text-2xl font-bold tracking-tight">Browse by state</h2>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {states.map((state) => (
-            <Link key={state.code} href={`/adopt/${state.code.toLowerCase()}`}>
-              <Card className="h-full transition-colors hover:border-primary">
-                <CardContent className="pt-6 space-y-1">
-                  <p className="text-lg font-semibold">{state.name}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {state.petCount === 1
-                      ? "1 pet at risk"
-                      : `${state.petCount} pets at risk`}{" "}
-                    · {state.shelterCount}{" "}
-                    {state.shelterCount === 1 ? "shelter" : "shelters"}
-                  </p>
-                </CardContent>
-              </Card>
-            </Link>
+            <HubLinkCard
+              key={state.code}
+              href={`/adopt/${state.code.toLowerCase()}`}
+              icon={<MapPin />}
+              title={state.name}
+              subtitle={`${state.petCount} ${
+                state.petCount === 1 ? "pet" : "pets"
+              } · ${state.shelterCount} ${
+                state.shelterCount === 1 ? "shelter" : "shelters"
+              }`}
+            />
           ))}
         </div>
       </div>

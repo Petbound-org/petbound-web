@@ -1,8 +1,10 @@
-import Link from "next/link"
+import { Building2 } from "lucide-react"
 
 import { Breadcrumbs } from "@/components/seo/breadcrumbs"
+import { HubHero } from "@/components/seo/hub-hero"
+import { HubLinkCard } from "@/components/seo/hub-link-card"
+import { HubStats } from "@/components/seo/hub-stats"
 import { JsonLd } from "@/components/seo/json-ld"
-import { Card, CardContent } from "@/components/ui/card"
 
 import { getLivePets, getShelterSlugs } from "@/lib/api/hubs"
 import { collectionPageJsonLd } from "@/lib/seo/schema"
@@ -52,49 +54,51 @@ export default async function SheltersPage() {
   const states = [...byState.entries()].sort(([a], [b]) => a.localeCompare(b))
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 space-y-10">
-        <JsonLd
-          data={collectionPageJsonLd({
-            name: "Petbound partner shelters",
-            description: metadata.description,
-            url: "/shelters",
-          })}
-        />
-        <Breadcrumbs
-          items={[{ name: "Home", href: "/" }, { name: "Shelters" }]}
-        />
+    <div className="min-h-screen">
+      <JsonLd
+        data={collectionPageJsonLd({
+          name: "Petbound partner shelters",
+          description: metadata.description,
+          url: "/shelters",
+        })}
+      />
 
-        <header className="space-y-4">
-          <h1 className="text-4xl sm:text-5xl font-bold tracking-tight">
-            Partner Shelters
-          </h1>
-          <p className="text-xl text-muted-foreground max-w-3xl">
-            These shelters list their most at-risk pets on Petbound. Every
-            adoption directly saves a life.
-          </p>
-        </header>
+      <HubHero
+        title="Partner Shelters"
+        description="These shelters list their most at-risk pets on Petbound. Every adoption directly saves a life."
+        breadcrumbs={
+          <Breadcrumbs
+            items={[{ name: "Home", href: "/" }, { name: "Shelters" }]}
+          />
+        }
+      >
+        <HubStats
+          stats={[
+            { value: slugs.size, label: "partner shelters" },
+            { value: states.length, label: "states" },
+          ]}
+        />
+      </HubHero>
 
+      <div className="mx-auto max-w-7xl space-y-12 px-4 py-12 sm:px-6 lg:px-8">
         {states.map(([stateName, shelters]) => (
           <section key={stateName} className="space-y-4">
-            <h2 className="text-2xl font-bold">{stateName}</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <h2 className="text-2xl font-bold tracking-tight">{stateName}</h2>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {shelters
                 .sort((a, b) => b.count - a.count)
                 .map((shelter) => (
-                  <Link key={shelter.slug} href={`/shelters/${shelter.slug}`}>
-                    <Card className="h-full transition-colors hover:border-primary">
-                      <CardContent className="pt-6 space-y-1">
-                        <p className="font-semibold">{shelter.name}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {shelter.city && <span>{shelter.city} · </span>}
-                          {shelter.count === 1
-                            ? "1 pet at risk"
-                            : `${shelter.count} pets at risk`}
-                        </p>
-                      </CardContent>
-                    </Card>
-                  </Link>
+                  <HubLinkCard
+                    key={shelter.slug}
+                    href={`/shelters/${shelter.slug}`}
+                    icon={<Building2 />}
+                    title={shelter.name}
+                    subtitle={`${shelter.city ? `${shelter.city} · ` : ""}${
+                      shelter.count === 1
+                        ? "1 pet at risk"
+                        : `${shelter.count} pets at risk`
+                    }`}
+                  />
                 ))}
             </div>
           </section>
