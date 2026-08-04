@@ -21,7 +21,10 @@ import type { Shelter } from "@/lib/types/shelter.interface"
 const URGENT_WINDOW_DAYS = 3
 
 export interface LivePet extends Pet {
-  shelter: Pick<Shelter, "id" | "name" | "city" | "state"> | null
+  shelter: Pick<
+    Shelter,
+    "id" | "name" | "city" | "state" | "latitude" | "longitude"
+  > | null
 }
 
 // ---------------------------------------------------------------------------
@@ -41,7 +44,7 @@ async function fetchLivePets(): Promise<LivePet[]> {
   for (let from = 0; ; from += PAGE_SIZE) {
     const { data, error } = await supabase
       .from("pets")
-      .select("*, shelters(id, name, city, state)")
+      .select("*, shelters(id, name, city, state, latitude, longitude)")
       .gte("euthanasia_date", today)
       .order("euthanasia_date", { ascending: true })
       .order("id", { ascending: true })
