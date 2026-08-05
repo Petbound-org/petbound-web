@@ -30,6 +30,8 @@ type LocationStatus =
   | "prompting"
   | "granted"
   | "denied"
+  | "unavailable"
+  | "insecure"
   | "unsupported"
 
 interface ExplorePetsProps {
@@ -93,7 +95,14 @@ export function ExplorePets({
     list.includes(value) ? list.filter((x) => x !== value) : [...list, value]
 
   const enableLocation = () => {
-    if (typeof navigator === "undefined" || !navigator.geolocation) {
+    if (typeof window === "undefined") return
+    // Geolocation only works in a secure context (https, or localhost). Over
+    // plain http (e.g. a LAN IP) the browser silently refuses.
+    if (!window.isSecureContext) {
+      setLocationStatus("insecure")
+      return
+    }
+    if (!navigator.geolocation) {
       setLocationStatus("unsupported")
       return
     }
@@ -107,8 +116,15 @@ export function ExplorePets({
           radiusMiles: f.radiusMiles ?? 100,
         }))
       },
-      () => setLocationStatus("denied"),
-      { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 },
+      (err) => {
+        console.warn("Geolocation failed:", err.code, err.message)
+        // 1 = PERMISSION_DENIED (browser or OS blocked it); 2/3 = position
+        // unavailable or timed out (e.g. macOS Location Services off).
+        setLocationStatus(
+          err.code === err.PERMISSION_DENIED ? "denied" : "unavailable",
+        )
+      },
+      { enableHighAccuracy: false, timeout: 15000, maximumAge: 300000 },
     )
   }
 
@@ -284,7 +300,7 @@ function ChipGroup({
 }) {
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <span className="text-sm font-medium text-muted-foreground">{label}</span>
+      <span className="text-sm font-semibold text-foreground">{label}</span>
       {options.map((option) => (
         <Button
           key={option}
@@ -344,21 +360,29 @@ function LocationControl({
     )
   }
 
+  const label =
+    status === "prompting"
+      ? "Locating…"
+      : status === "denied"
+        ? "Location blocked — retry"
+        : status === "unavailable"
+          ? "Couldn't locate you — retry"
+          : status === "insecure"
+            ? "Location needs a secure (https) page"
+            : status === "unsupported"
+              ? "Location not supported"
+              : "Find pets near me"
+
   return (
     <Button
       type="button"
       variant="outline"
       onClick={onEnable}
       disabled={status === "prompting"}
+      title="Sorts pets by distance from you using your device location. Nothing is stored."
     >
       <MapPin className="mr-2 h-4 w-4" />
-      {status === "prompting"
-        ? "Locating…"
-        : status === "denied"
-          ? "Location blocked — retry"
-          : status === "unsupported"
-            ? "Location unavailable"
-            : "Use my location"}
+      {label}
     </Button>
   )
 }
