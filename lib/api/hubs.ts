@@ -14,6 +14,7 @@ import { shelterSlugMap } from "@/lib/seo/shelter-slug"
 import { slugify, titleCase } from "@/lib/seo/slug"
 import { stateCodeFrom, stateNameFromCode } from "@/lib/seo/states"
 import { isSupabaseConfigured, supabase } from "@/lib/supabase"
+import { todayLocalISO } from "@/lib/today"
 import type { Pet } from "@/lib/types/pet.interface"
 import type { Shelter } from "@/lib/types/shelter.interface"
 
@@ -37,7 +38,7 @@ async function fetchLivePets(): Promise<LivePet[]> {
     return []
   }
 
-  const today = new Date().toISOString().slice(0, 10)
+  const today = todayLocalISO()
   const PAGE_SIZE = 1000
   const pets: LivePet[] = []
 

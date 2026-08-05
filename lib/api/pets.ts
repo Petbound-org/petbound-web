@@ -10,6 +10,7 @@ import { after } from "next/server"
 import { PETS_PER_PAGE } from "@/lib/pets-pagination"
 import { isSupabaseConfigured, supabase } from "@/lib/supabase"
 import { CACHE_TAGS, CACHE_TTL } from "@/lib/cache"
+import { todayLocalISO } from "@/lib/today"
 import type { Pet } from "@/lib/types/pet.interface"
 
 export { PETS_PER_PAGE }
@@ -106,7 +107,7 @@ async function fetchPetSitemapEntries(): Promise<
   // Only currently listed pets (euthanasia date not yet passed) belong in the
   // sitemap; the table retains past listings. Supabase caps responses at
   // 1,000 rows per request, so page until a short page.
-  const today = new Date().toISOString().slice(0, 10)
+  const today = todayLocalISO()
   const PAGE_SIZE = 1000
   const entries: Array<{ id: number; updated_at: string | null }> = []
 
