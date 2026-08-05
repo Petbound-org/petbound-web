@@ -1,5 +1,10 @@
 import { ExplorePets } from "@/components/ui/explore/explore-pets"
-import { getPets } from "@/lib/api/pets"
+import {
+  getExploreBreedOptions,
+  getExploreFacets,
+  getExplorePage,
+} from "@/lib/api/explore"
+import { DEFAULT_EXPLORE_FILTERS } from "@/lib/explore-filters"
 
 export const metadata = {
   // Root layout title template appends "— Petbound".
@@ -10,7 +15,19 @@ export const metadata = {
 }
 
 export default async function ExplorePage() {
-  const initialPets = await getPets(0, {})
+  const [initial, breedOptions, facets] = await Promise.all([
+    getExplorePage(0, DEFAULT_EXPLORE_FILTERS),
+    getExploreBreedOptions(),
+    getExploreFacets(),
+  ])
 
-  return <ExplorePets initialPets={initialPets} />
+  return (
+    <ExplorePets
+      initialPets={initial.pets}
+      initialTotal={initial.total}
+      initialTotalPages={initial.totalPages}
+      breedOptions={breedOptions}
+      facets={facets}
+    />
+  )
 }

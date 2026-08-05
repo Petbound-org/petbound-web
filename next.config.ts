@@ -30,8 +30,12 @@ const nextConfig: NextConfig = {
           { key: "X-Frame-Options", value: "DENY" },
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
           {
+            // Allow geolocation for our own origin (the Explore "near me"
+            // search); keep camera/microphone fully disabled. An empty
+            // geolocation=() allowlist blocks even self, which silently broke
+            // getCurrentPosition in every browser.
             key: "Permissions-Policy",
-            value: "camera=(), microphone=(), geolocation=()",
+            value: "camera=(), microphone=(), geolocation=(self)",
           },
         ],
       },

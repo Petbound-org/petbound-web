@@ -14,6 +14,7 @@ import { shelterSlugMap } from "@/lib/seo/shelter-slug"
 import { slugify, titleCase } from "@/lib/seo/slug"
 import { stateCodeFrom, stateNameFromCode } from "@/lib/seo/states"
 import { isSupabaseConfigured, supabase } from "@/lib/supabase"
+import { todayLocalISO } from "@/lib/today"
 import type { Pet } from "@/lib/types/pet.interface"
 import type { Shelter } from "@/lib/types/shelter.interface"
 
@@ -21,7 +22,10 @@ import type { Shelter } from "@/lib/types/shelter.interface"
 const URGENT_WINDOW_DAYS = 3
 
 export interface LivePet extends Pet {
-  shelter: Pick<Shelter, "id" | "name" | "city" | "state"> | null
+  shelter: Pick<
+    Shelter,
+    "id" | "name" | "city" | "state" | "latitude" | "longitude"
+  > | null
 }
 
 // ---------------------------------------------------------------------------
@@ -34,14 +38,14 @@ async function fetchLivePets(): Promise<LivePet[]> {
     return []
   }
 
-  const today = new Date().toISOString().slice(0, 10)
+  const today = todayLocalISO()
   const PAGE_SIZE = 1000
   const pets: LivePet[] = []
 
   for (let from = 0; ; from += PAGE_SIZE) {
     const { data, error } = await supabase
       .from("pets")
-      .select("*, shelters(id, name, city, state)")
+      .select("*, shelters(id, name, city, state, latitude, longitude)")
       .gte("euthanasia_date", today)
       .order("euthanasia_date", { ascending: true })
       .order("id", { ascending: true })
