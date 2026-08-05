@@ -7,57 +7,21 @@ import {
 } from "next/cache"
 import { after } from "next/server"
 
-import { PETS_PER_PAGE } from "@/lib/pets-pagination"
 import { isSupabaseConfigured, supabase } from "@/lib/supabase"
 import { CACHE_TAGS, CACHE_TTL } from "@/lib/cache"
 import { todayLocalISO } from "@/lib/today"
 import type { Pet } from "@/lib/types/pet.interface"
 
-export { PETS_PER_PAGE }
-
 /**
- * Coordinates used by the geo-RPCs for the "nearby pets" feeds.
+ * Coordinates used by the geo-RPC for the homepage "nearby pets" feed.
  * Hard-coded for now; can be promoted to a request-scoped value later.
  */
 const DEFAULT_LAT = 34.4208
 const DEFAULT_LON = -119.6982
 
-export interface PetListFilters {
-  ages?: string[]
-  sizes?: string[]
-}
-
 // ---------------------------------------------------------------------------
 // Raw (uncached) fetchers
 // ---------------------------------------------------------------------------
-
-async function fetchPets(
-  page: number,
-  filters: PetListFilters,
-): Promise<Pet[]> {
-  if (!isSupabaseConfigured()) {
-    return []
-  }
-
-  const ageFilters = filters.ages?.length ? filters.ages : null
-  const sizeFilters = filters.sizes?.length ? filters.sizes : null
-
-  const { data, error } = await supabase.rpc("get_nearby_pets_filtered", {
-    user_lat: DEFAULT_LAT,
-    user_lon: DEFAULT_LON,
-    pet_limit: PETS_PER_PAGE,
-    pet_offset: page * PETS_PER_PAGE,
-    age_filters: ageFilters,
-    size_filters: sizeFilters,
-  })
-
-  if (error) {
-    console.error("[api/pets] fetchPets error:", error)
-    return []
-  }
-
-  return (data ?? []) as Pet[]
-}
 
 async function fetchNearbyPets(count: number): Promise<Pet[]> {
   if (!isSupabaseConfigured()) {
@@ -147,31 +111,6 @@ async function fetchPetSitemapEntries(): Promise<
 // detect that case, refetch fresh, and bust the tag so subsequent requests
 // hit the populated cache.
 // ---------------------------------------------------------------------------
-
-const _getPetsCached = unstable_cache(
-  fetchPets,
-  ["pets-list"],
-  {
-    tags: [CACHE_TAGS.pets],
-    revalidate: CACHE_TTL.petsList,
-  },
-)
-
-export async function getPets(
-  page: number,
-  filters: PetListFilters,
-): Promise<Pet[]> {
-  const cached = await _getPetsCached(page, filters)
-  if (cached.length > 0) return cached
-
-  const fresh = await fetchPets(page, filters)
-  if (fresh.length > 0) {
-    after(() => {
-      revalidateTag(CACHE_TAGS.pets, "max")
-    })
-  }
-  return fresh
-}
 
 /**
  * Homepage nearby grid: always live (no unstable_cache).
