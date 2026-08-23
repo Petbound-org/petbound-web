@@ -21,8 +21,11 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Petbound",
-    template: "%s — Petbound",
+    // The homepage is the strongest page on the domain, so its title says what
+    // the site is rather than only naming it. Brand stays first to keep the
+    // branded result recognisable.
+    default: "Petbound: Adopt Pets on Shelter Euthanasia Lists",
+    template: "%s | Petbound",
   },
   description:
     "The adoption platform built exclusively for animals at risk of euthanasia.",

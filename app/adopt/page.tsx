@@ -14,7 +14,7 @@ export const revalidate = 1800
 export const metadata = {
   title: "Adopt At-Risk Shelter Pets by State",
   description:
-    "Browse pets on shelter euthanasia lists by state. Every listing is urgent — find adoptable dogs and cats near you before time runs out.",
+    "Browse pets on shelter euthanasia lists by state. Every listing is urgent. Find adoptable dogs and cats near you before time runs out.",
   alternates: { canonical: "/adopt" },
 }
 

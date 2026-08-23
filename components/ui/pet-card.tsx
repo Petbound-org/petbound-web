@@ -5,6 +5,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { Heart } from "lucide-react"
 
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { useFavorites } from "@/lib/favorites-context"
@@ -39,6 +40,8 @@ export function PetCard({ pet }: PetCardProps) {
     }
   }
 
+  // Scraped names are often blank strings rather than null.
+  const displayName = pet.name?.trim() || null
   const hasImage = pet.image_urls && pet.image_urls.length > 0
 
   return (
@@ -49,15 +52,17 @@ export function PetCard({ pet }: PetCardProps) {
       <Link
         href={`/pets/${pet.id}`}
         className="relative h-48 w-full overflow-hidden block bg-muted"
-        aria-label={`View ${pet.name ?? "pet"}`}
+        aria-label={`View ${displayName ?? pet.breed ?? "pet"}`}
       >
         {hasImage ? (
           <Image
             src={pet.image_urls![0]}
             alt={
-              pet.name
-                ? `${pet.name}${pet.breed ? `, a ${pet.breed}` : ""}, available for adoption`
-                : "Adoptable pet photo"
+              displayName
+                ? `${displayName}${pet.breed ? `, a ${pet.breed}` : ""}, available for adoption`
+                : pet.breed
+                  ? `${pet.breed} available for adoption`
+                  : "Adoptable pet photo"
             }
             fill
             sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
@@ -71,15 +76,39 @@ export function PetCard({ pet }: PetCardProps) {
       </Link>
 
       <div className="p-4 flex flex-col flex-1 justify-between gap-4">
-        <div className="space-y-1">
-          <h3 className="text-lg font-semibold tracking-tight truncate">
-            {pet.name ?? "Unnamed Pet"}
-          </h3>
-          {pet.breed && (
-            <p className="text-sm text-muted-foreground truncate">{pet.breed}</p>
-          )}
-          {pet.age && (
-            <p className="text-sm text-muted-foreground">{pet.age}</p>
+        <div className="space-y-2">
+          <div className="space-y-1">
+            <h3 className="text-lg font-semibold tracking-tight truncate">
+              {displayName ?? (pet.breed || "Adoptable Pet")}
+            </h3>
+            {pet.breed && (
+              <p className="text-sm text-muted-foreground truncate">
+                {pet.breed}
+              </p>
+            )}
+          </div>
+
+          {/* Attribute chips, matching the pet detail page treatment. Age moves
+              up here from its own line so gender and size are visible without
+              opening the pet. */}
+          {(pet.gender || pet.age || pet.size) && (
+            <div className="flex flex-wrap items-center gap-1.5">
+              {pet.gender && (
+                <Badge variant="secondary" className="text-xs font-normal">
+                  {pet.gender}
+                </Badge>
+              )}
+              {pet.age && (
+                <Badge variant="secondary" className="text-xs font-normal">
+                  {pet.age}
+                </Badge>
+              )}
+              {pet.size && (
+                <Badge variant="secondary" className="text-xs font-normal">
+                  {pet.size}
+                </Badge>
+              )}
+            </div>
           )}
         </div>
 

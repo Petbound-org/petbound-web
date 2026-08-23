@@ -5,6 +5,7 @@ import { after } from "next/server"
 
 import { getAllShelters } from "@/lib/api/shelters"
 import { CACHE_TAGS, CACHE_TTL } from "@/lib/cache"
+import { daysUntilDeadline } from "@/lib/pet-status"
 import {
   BREED_INDEX_THRESHOLD,
   breedSlug,
@@ -93,16 +94,9 @@ export async function getLivePets(): Promise<LivePet[]> {
 // Derived hub data (pure slicing of the cached index)
 // ---------------------------------------------------------------------------
 
-function daysUntil(dateStr: string | null): number | null {
-  if (!dateStr) return null
-  return Math.ceil(
-    (new Date(dateStr).getTime() - Date.now()) / (1000 * 60 * 60 * 24),
-  )
-}
-
 function countUrgent(pets: LivePet[]): number {
   return pets.filter((p) => {
-    const days = daysUntil(p.euthanasia_date)
+    const days = daysUntilDeadline(p.euthanasia_date)
     return days !== null && days <= URGENT_WINDOW_DAYS
   }).length
 }

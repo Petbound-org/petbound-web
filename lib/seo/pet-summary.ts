@@ -1,3 +1,4 @@
+import type { PetStatus } from "@/lib/pet-status"
 import type { Pet } from "@/lib/types/pet.interface"
 
 /**
@@ -22,6 +23,8 @@ export interface PetSummaryContext {
   reason?: string | null
   /** Normalized breed, e.g. "Labrador Retriever". */
   breedName?: string | null
+  /** Listing lifecycle. Defaults to "live" when omitted. */
+  status?: PetStatus
 }
 
 // Pets carry a recorded sex; use it for natural pronouns and fall back to the
@@ -74,26 +77,44 @@ export function petSummary(pet: Pet, ctx: PetSummaryContext = {}): string {
     sentences.push(`${capitalize(p.subject)} ${p.verb} ${traits.join(" and ")}.`)
   }
 
-  // 3. Urgency.
-  if (ctx.daysLeft != null || pet.euthanasia_date) {
+  // 3. Urgency, but only while the listing is still current. Past the date we
+  //    cannot tell an adoption from a rescue pull from a euthanasia, so the
+  //    copy states the uncertainty instead of inventing a countdown.
+  const status = ctx.status ?? "live"
+  const because = ctx.reason
+    ? `, listed due to ${ctx.reason.trim().toLowerCase()}`
+    : ""
+
+  if (status === "live" && (ctx.daysLeft != null || pet.euthanasia_date)) {
     let urgency = `${capitalize(p.subject)} ${p.verb} currently on the shelter's euthanasia list`
     if (ctx.daysLeft != null) {
       const d = ctx.daysLeft
       urgency +=
         d <= 0
-          ? " and time has already run out"
+          ? " and today is the last day"
           : d === 1
             ? " with just one day left"
             : ` with only ${d} days left`
     }
-    if (ctx.reason) urgency += `, listed due to ${ctx.reason.trim().toLowerCase()}`
-    sentences.push(`${urgency}.`)
+    sentences.push(`${urgency}${because}.`)
+    sentences.push(
+      `Adopting ${name}, or even sharing ${p.possessive} story, could save a life before it's too late.`,
+    )
+  } else if (status === "unconfirmed") {
+    sentences.push(
+      `${capitalize(p.subject)} ${p.verb} listed on the shelter's euthanasia list${because}, and that date has now passed.`,
+    )
+    sentences.push(
+      `Shelters often move these dates, so ${name} may still be waiting. The shelter can confirm.`,
+    )
+  } else {
+    sentences.push(
+      `${capitalize(p.subject)} ${p.verb} listed on the shelter's euthanasia list${because}, and that listing is no longer current.`,
+    )
+    sentences.push(
+      `We have no record of the outcome. Other pets in the same area are still waiting for homes.`,
+    )
   }
-
-  // 4. Call to action.
-  sentences.push(
-    `Adopting ${name} — or simply sharing ${p.possessive} story — could save a life before it's too late.`,
-  )
 
   return sentences.join(" ")
 }

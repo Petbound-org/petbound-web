@@ -19,6 +19,58 @@ In the U.S., countless adoptable animals face this devastating outcome due to ov
     * **Python with BeautifulSoup4:** We use Python to run a web-scraper that collects data that is then stored in our database.
     * **GitHub Actions:** This allows us to automate our data collection and create a self-sufficient database with up to date and cleaned data.
 
+## Conventions Worth Knowing
+
+Two areas hold non-obvious rules. Read these before changing pet pages or metadata.
+
+### Pet listing lifecycle
+
+A euthanasia date passing does **not** mean the animal died. Shelters routinely push
+these dates back: 28% of currently-listed pets carry a date more than 14 days after
+they were first seen. The database also has no outcome column, so a pet disappearing
+from the source is indistinguishable from one that was euthanized.
+
+`lib/pet-status.ts` therefore gives every listing one of three states:
+
+| State | When | Behaviour |
+|---|---|---|
+| `live` | deadline is today or later | Countdown and shelter contact shown |
+| `unconfirmed` | within `GRACE_PERIOD_DAYS` (7) after | No countdown, outcome stated as unknown, contact still shown |
+| `expired` | beyond the grace window | Page still served, pointed at pets that still have time |
+
+Expired pages are deliberately **not** 404'd or noindexed: they carry most of the
+site's search traffic. They are excluded from the sitemap once past the grace window.
+
+Never write copy asserting that a pet was saved or euthanized. The data cannot
+support either claim.
+
+### Dates and timezones
+
+`euthanasia_date` is a date-only column. Comparing it against wall-clock `Date.now()`
+reads a day early through every Pacific evening, which silently corrupted both the
+countdown and the "urgent" hub counts.
+
+- For day arithmetic use `daysUntilDeadline` / `daysPastDeadline` (`lib/pet-status.ts`).
+- For display use `formatDeadline` (`lib/seo/euthanasia.ts`), which renders in UTC.
+- For the "still at risk" cutoff use `todayLocalISO()` (`lib/today.ts`).
+
+Do not reintroduce ad-hoc `new Date(x).getTime() - Date.now()` arithmetic.
+
+### SEO conventions
+
+- **One canonical host**: `www.petbound.org`. `next.config.ts` redirects the apex and
+  the `.vercel.app` alias to it permanently. Every absolute URL comes from `BASE_URL`
+  (`lib/seo/constants.ts`).
+- **Titles** use `%s | Petbound` from the root layout, so page titles stay bare.
+- **No em dashes in user-facing copy.** They read as machine-written. Use commas,
+  colons, or parentheses. Code comments are exempt.
+- **FAQ markup must match the page.** Google treats `FAQPage` JSON-LD whose answers
+  are not visible as spam, so both come from the same functions in
+  `lib/seo/shelter-summary.ts`. Never write a separate copy for crawlers.
+- **Scraped fields are often blank strings, not null.** Guard with
+  `value?.trim() || fallback`; `??` alone lets `""` through and produced empty
+  `<title>` tags on hundreds of pages.
+
 ## 🛠️ Getting Started (Local Development)
 
 To run Petbound on your local machine, follow these steps.

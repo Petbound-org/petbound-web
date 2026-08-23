@@ -7,7 +7,7 @@ import {
 import { DEFAULT_EXPLORE_FILTERS } from "@/lib/explore-filters"
 
 export const metadata = {
-  // Root layout title template appends "— Petbound".
+  // Root layout title template appends "| Petbound".
   title: "Explore Pets",
   description:
     "Browse pets at risk of euthanasia and find your life-saving match.",

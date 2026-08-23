@@ -30,7 +30,7 @@ export async function generateMetadata({ params }: StatePageProps) {
   }
 
   return {
-    title: `Adopt a Pet in ${data.name} — ${data.petCount} At-Risk Pets Need Homes`,
+    title: `Adopt a Pet in ${data.name}: ${data.petCount} At-Risk Pets Need Homes`,
     description: `${data.petCount} pets across ${data.shelterCount} ${
       data.shelterCount === 1 ? "shelter" : "shelters"
     } in ${data.name} are on euthanasia lists right now. Browse by city and adopt before their time runs out.`,
@@ -74,7 +74,7 @@ export default async function StatePage({ params }: StatePageProps) {
       <HubHero
         eyebrow="Urgent adoptions"
         title={`Adopt a Pet in ${data.name}`}
-        description={`These pets are on euthanasia lists at ${data.name} shelters. Adopting — or even sharing — can save a life.`}
+        description={`These pets are on euthanasia lists at ${data.name} shelters. Adopting, or even sharing, can save a life.`}
         breadcrumbs={
           <Breadcrumbs
             items={[

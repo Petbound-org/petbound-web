@@ -5,7 +5,7 @@ import { notFound } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { AlertCircle, Calendar, Heart, Mail, Phone } from "lucide-react"
+import { AlertCircle, Calendar, Heart, HelpCircle, Mail, Phone } from "lucide-react"
 
 import { Breadcrumbs } from "@/components/seo/breadcrumbs"
 import { HubPetGrid } from "@/components/seo/hub-pet-grid"
@@ -17,7 +17,9 @@ import {
 } from "@/lib/api/hubs"
 import { getPetById } from "@/lib/api/pets"
 import { getShelterById } from "@/lib/api/shelters"
+import { daysUntilDeadline, petStatus } from "@/lib/pet-status"
 import { breedSlug, normalizeBreed } from "@/lib/seo/breeds"
+import { formatDeadline, normalizeEuthanasiaReason } from "@/lib/seo/euthanasia"
 import { petSummary } from "@/lib/seo/pet-summary"
 import { slugify, titleCase } from "@/lib/seo/slug"
 import { stateCodeFrom, stateNameFromCode } from "@/lib/seo/states"
@@ -26,12 +28,9 @@ interface PetPageProps {
   params: Promise<{ id: string }>
 }
 
-function daysLeft(dateStr: string | null): number | null {
-  if (!dateStr) return null
-  const target = new Date(dateStr).getTime()
-  const now = Date.now()
-  const diff = target - now
-  return Math.ceil(diff / (1000 * 60 * 60 * 24))
+/** Scraped names are frequently blank strings, not null. */
+function displayNameOf(pet: { name: string | null }): string | null {
+  return pet.name?.trim() || null
 }
 
 function cleanDescription(input: string | null): string {
@@ -42,14 +41,8 @@ function cleanDescription(input: string | null): string {
   return input
 }
 
-function cleanEuthanasiaReason(input: string | null): string | null {
-  if (!input) return null
-  if (input === "Space") return "Lack of Space"
-  return input
-}
-
 export async function generateMetadata({ params }: PetPageProps) {
-  // Root layout title template appends "— Petbound", so titles here stay bare.
+  // Root layout title template appends "| Petbound", so titles here stay bare.
   const { id } = await params
   const petId = Number(id)
   if (!Number.isFinite(petId)) {
@@ -65,15 +58,18 @@ export async function generateMetadata({ params }: PetPageProps) {
   const city = shelter?.city ? titleCase(shelter.city) : null
   const state = stateCodeFrom(shelter?.state ?? null)
 
-  // "Adopt Max — Labrador Retriever in Bakersfield, CA", degrading gracefully
-  // when breed or location is missing.
-  let title = pet.name ?? "Adoptable Pet"
-  if (pet.name) {
-    const where = city && state ? ` in ${city}, ${state}` : ""
-    title = breed
-      ? `Adopt ${pet.name} — ${breed}${where}`
-      : `Adopt ${pet.name}${where}`
-  }
+  // "Adopt Max: Labrador Retriever in Bakersfield, CA", degrading gracefully
+  // when breed or location is missing. Unnamed pets fall back to breed and
+  // place rather than an empty title, which is what a blank name used to give.
+  const displayName = displayNameOf(pet)
+  const where = city && state ? ` in ${city}, ${state}` : ""
+  const title = displayName
+    ? breed
+      ? `Adopt ${displayName}: ${breed}${where}`
+      : `Adopt ${displayName}${where}`
+    : breed
+      ? `Adopt a ${breed}${where}`
+      : `Adoptable Pet${where}`
 
   // Unique, data-driven fallback so pages with empty/short shelter descriptions
   // still get a distinct meta description instead of boilerplate.
@@ -81,9 +77,10 @@ export async function generateMetadata({ params }: PetPageProps) {
     cityName: city,
     stateName: state ? stateNameFromCode(state) : null,
     shelterName: shelter?.name ?? null,
-    daysLeft: daysLeft(pet.euthanasia_date),
-    reason: cleanEuthanasiaReason(pet.euthanasia_reason),
+    daysLeft: daysUntilDeadline(pet.euthanasia_date),
+    reason: normalizeEuthanasiaReason(pet.euthanasia_reason),
     breedName: breed,
+    status: petStatus(pet.euthanasia_date),
   })
   const description = (cleanDescription(pet.description).trim() || summary).slice(
     0,
@@ -96,7 +93,7 @@ export async function generateMetadata({ params }: PetPageProps) {
     description,
     alternates: { canonical: `/pets/${petId}` },
     openGraph: {
-      title: `${title} — Petbound`,
+      title: `${title} | Petbound`,
       description,
       type: "website",
       url: `/pets/${petId}`,
@@ -104,7 +101,7 @@ export async function generateMetadata({ params }: PetPageProps) {
     },
     twitter: {
       card: image ? "summary_large_image" : "summary",
-      title: `${title} — Petbound`,
+      title: `${title} | Petbound`,
       description,
       ...(image ? { images: [image] } : {}),
     },
@@ -127,9 +124,12 @@ export default async function PetPage({ params }: PetPageProps) {
   }
 
   const shelter = pet.shelter_id ? await getShelterById(pet.shelter_id) : null
-  const days = daysLeft(pet.euthanasia_date)
+  const days = daysUntilDeadline(pet.euthanasia_date)
+  const status = petStatus(pet.euthanasia_date)
+  const displayName = displayNameOf(pet)
+  const petName = displayName ?? "this pet"
   const description = cleanDescription(pet.description)
-  const reason = cleanEuthanasiaReason(pet.euthanasia_reason)
+  const reason = normalizeEuthanasiaReason(pet.euthanasia_reason)
   const hasImage = Boolean(pet.image_urls && pet.image_urls.length > 0)
 
   const [shelterSlugs, indexableBreeds, similarPets] = await Promise.all([
@@ -142,6 +142,13 @@ export default async function PetPage({ params }: PetPageProps) {
   const stateName = stateCode ? stateNameFromCode(stateCode) : null
   const cityName = shelter?.city ? titleCase(shelter.city) : null
   const citySlug = shelter?.city ? slugify(shelter.city) : null
+  // Where to send someone who landed on a listing that is no longer current.
+  const liveHref =
+    stateCode && citySlug
+      ? `/adopt/${stateCode.toLowerCase()}/${citySlug}`
+      : stateCode
+        ? `/adopt/${stateCode.toLowerCase()}`
+        : "/explore"
   const breedName = normalizeBreed(pet.breed)
   const breedHref =
     breedName && indexableBreeds.some((b) => b.slug === breedSlug(breedName))
@@ -158,6 +165,7 @@ export default async function PetPage({ params }: PetPageProps) {
     daysLeft: days,
     reason,
     breedName,
+    status,
   })
 
   const crumbs = [
@@ -174,7 +182,7 @@ export default async function PetPage({ params }: PetPageProps) {
           },
         ]
       : []),
-    { name: pet.name ?? "Pet" },
+    { name: displayName ?? "Pet" },
   ]
 
   return (
@@ -191,9 +199,11 @@ export default async function PetPage({ params }: PetPageProps) {
                   <Image
                     src={pet.image_urls![0]}
                     alt={
-                      pet.name
-                        ? `${pet.name}${pet.breed ? `, a ${pet.breed}` : ""}, available for adoption`
-                        : "Adoptable pet photo"
+                      displayName
+                        ? `${displayName}${pet.breed ? `, a ${pet.breed}` : ""}, available for adoption`
+                        : pet.breed
+                          ? `${pet.breed} available for adoption`
+                          : "Adoptable pet photo"
                     }
                     fill
                     sizes="(min-width: 1024px) 50vw, 100vw"
@@ -229,7 +239,8 @@ export default async function PetPage({ params }: PetPageProps) {
                 </div>
 
                 <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight">
-                  {pet.name}
+                  {displayName ??
+                    (breedName ? `Adoptable ${breedName}` : "Adoptable Pet")}
                 </h1>
 
                 {pet.breed && (
@@ -237,7 +248,11 @@ export default async function PetPage({ params }: PetPageProps) {
                 )}
               </div>
 
-              {days !== null && (
+              {/* Only a listing that is still current gets the countdown. Once
+                  the date passes we cannot tell whether the pet was adopted,
+                  pulled by a rescue, given a later date, or euthanized, so the
+                  page stops asserting urgency and says what we actually know. */}
+              {status === "live" && days !== null && (
                 <div className="bg-red-50 dark:bg-red-950/30 border-2 border-red-200 dark:border-red-900 rounded-xl p-6">
                   <div className="flex items-start gap-3">
                     <AlertCircle className="w-6 h-6 text-red-600 dark:text-red-500 shrink-0 mt-0.5" />
@@ -253,15 +268,7 @@ export default async function PetPage({ params }: PetPageProps) {
                       {pet.euthanasia_date && (
                         <p className="text-sm text-red-800 dark:text-red-200 flex items-center gap-1.5">
                           <Calendar className="w-4 h-4" />
-                          Scheduled:{" "}
-                          {new Date(pet.euthanasia_date).toLocaleDateString(
-                            "en-US",
-                            {
-                              month: "long",
-                              day: "numeric",
-                              year: "numeric",
-                            },
-                          )}
+                          Scheduled: {formatDeadline(pet.euthanasia_date)}
                         </p>
                       )}
                       {reason && (
@@ -274,7 +281,28 @@ export default async function PetPage({ params }: PetPageProps) {
                 </div>
               )}
 
-              {shelter && (
+              {status !== "live" && (
+                <div className="bg-amber-50 dark:bg-amber-950/30 border-2 border-amber-200 dark:border-amber-900 rounded-xl p-6">
+                  <div className="flex items-start gap-3">
+                    <HelpCircle className="w-6 h-6 text-amber-600 dark:text-amber-500 shrink-0 mt-0.5" />
+                    <div className="space-y-2">
+                      <p className="font-bold text-amber-900 dark:text-amber-100 text-lg">
+                        We do not know what happened to {petName}
+                      </p>
+                      <p className="text-sm text-amber-800 dark:text-amber-200">
+                        {status === "unconfirmed"
+                          ? `The date this shelter listed for ${petName} has passed. Shelters often push these dates back, and many pets are adopted or pulled by a rescue first, so ${petName} may still be there. The shelter can tell you.`
+                          : `This listing is no longer current and we have no record of the outcome. Other pets in the same area still have time left.`}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Contact stays prominent through the grace window, because the
+                  date moving is the most likely reason a listing goes quiet and
+                  the shelter is the only party who can confirm. */}
+              {shelter && status !== "expired" && (
                 <div className="flex flex-col sm:flex-row gap-3">
                   {shelter.phone_number && (
                     <Button asChild size="lg" className="flex-1">
@@ -299,6 +327,12 @@ export default async function PetPage({ params }: PetPageProps) {
                   )}
                 </div>
               )}
+
+              {status === "expired" && (
+                <Button asChild size="lg" className="w-full sm:w-auto">
+                  <Link href={liveHref}>See pets who still have time</Link>
+                </Button>
+              )}
             </div>
           </div>
         </div>
@@ -309,7 +343,7 @@ export default async function PetPage({ params }: PetPageProps) {
           <div className="lg:col-span-2 space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle className="text-2xl">About {pet.name}</CardTitle>
+                <CardTitle className="text-2xl">About {petName}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <p className="leading-relaxed text-foreground/90">{summary}</p>
@@ -369,7 +403,7 @@ export default async function PetPage({ params }: PetPageProps) {
                   />
                   <AdoptionStep
                     n={3}
-                    text={`Schedule a visit to meet ${pet.name ?? "this pet"}`}
+                    text={`Schedule a visit to meet ${petName}`}
                   />
                   <AdoptionStep
                     n={4}
@@ -377,7 +411,7 @@ export default async function PetPage({ params }: PetPageProps) {
                   />
                   <AdoptionStep
                     n={5}
-                    text={`Finalize the adoption and bring ${pet.name ?? "your new pet"} home!`}
+                    text={`Finalize the adoption and bring ${displayName ?? "your new pet"} home!`}
                   />
                 </ol>
               </CardContent>

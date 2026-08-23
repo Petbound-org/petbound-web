@@ -9,7 +9,7 @@ import { after } from "next/server"
 
 import { isSupabaseConfigured, supabase } from "@/lib/supabase"
 import { CACHE_TAGS, CACHE_TTL } from "@/lib/cache"
-import { todayLocalISO } from "@/lib/today"
+import { graceCutoffISO } from "@/lib/pet-status"
 import type { Pet } from "@/lib/types/pet.interface"
 
 /**
@@ -68,10 +68,12 @@ async function fetchPetSitemapEntries(): Promise<
     return []
   }
 
-  // Only currently listed pets (euthanasia date not yet passed) belong in the
-  // sitemap; the table retains past listings. Supabase caps responses at
-  // 1,000 rows per request, so page until a short page.
-  const today = todayLocalISO()
+  // Current listings plus the grace window, since shelters routinely push these
+  // dates back and a just-passed listing often becomes live again. Anything
+  // older is still served (those pages hold most of the site's search traffic)
+  // but is no longer advertised for crawling. The table retains past listings.
+  // Supabase caps responses at 1,000 rows per request, so page until a short one.
+  const cutoff = graceCutoffISO()
   const PAGE_SIZE = 1000
   const entries: Array<{ id: number; updated_at: string | null }> = []
 
@@ -79,7 +81,7 @@ async function fetchPetSitemapEntries(): Promise<
     const { data, error } = await supabase
       .from("pets")
       .select("id, updated_at")
-      .gte("euthanasia_date", today)
+      .gte("euthanasia_date", cutoff)
       .order("id", { ascending: true })
       .range(from, from + PAGE_SIZE - 1)
 

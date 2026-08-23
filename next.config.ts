@@ -21,6 +21,29 @@ const nextConfig: NextConfig = {
   experimental: {
     optimizePackageImports: ["lucide-react"],
   },
+  async redirects() {
+    // Five hostnames alias the same production deployment. Only
+    // www.petbound.org should be indexable; the rest split ranking signals
+    // across duplicate copies of the whole site.
+    //
+    // petbound-web.vercel.app serves a 200 with no x-robots-tag, so Google can
+    // crawl and index it. Canonical tags point at www, which mitigates but does
+    // not prevent indexing or the wasted crawl budget.
+    //
+    // The petbound.org rule is a safety net only: that redirect is currently
+    // configured at the Vercel domain level and fires at the edge before the
+    // request reaches Next, so this rule does not run today. It matters if the
+    // dashboard redirect is ever removed. The dashboard one is a 307
+    // (temporary) and must be switched to permanent there; the CLI has no
+    // command for the redirect status code.
+    const canonicalHost = "https://www.petbound.org"
+    return ["petbound-web.vercel.app", "petbound.org"].map((host) => ({
+      source: "/:path*",
+      has: [{ type: "host" as const, value: host }],
+      destination: `${canonicalHost}/:path*`,
+      permanent: true,
+    }))
+  },
   async headers() {
     return [
       {
