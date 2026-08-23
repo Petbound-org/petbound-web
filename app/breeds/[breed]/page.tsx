@@ -27,7 +27,7 @@ export async function generateMetadata({ params }: BreedPageProps) {
   }
 
   return {
-    title: `Adopt a ${data.name} — ${data.count} Available Now`,
+    title: `Adopt a ${data.name}: ${data.count} Available Now`,
     description: `${data.count} ${data.name}s (including mixes) are on shelter euthanasia lists right now. See their photos and deadlines, and adopt one before time runs out.`,
     alternates: { canonical: `/breeds/${breed}` },
   }
@@ -52,7 +52,7 @@ export default async function BreedPage({ params }: BreedPageProps) {
       <JsonLd
         data={collectionPageJsonLd({
           name: `Adopt a ${data.name}`,
-          description: `${data.name}s at risk of euthanasia in partner shelters.`,
+          description: `${data.name}s at risk of euthanasia in shelters across the country.`,
           url: `/breeds/${breed}`,
         })}
       />
@@ -66,7 +66,7 @@ export default async function BreedPage({ params }: BreedPageProps) {
       <HubHero
         eyebrow="Urgent adoptions"
         title={`${data.name}s Available for Adoption`}
-        description={`${data.count} ${data.name}s — purebred and mixes — are on shelter euthanasia lists right now. Each one can still be saved.`}
+        description={`${data.count} ${data.name}s, purebred and mixes, are on shelter euthanasia lists right now. Each one can still be saved.`}
         breadcrumbs={
           <Breadcrumbs
             items={[

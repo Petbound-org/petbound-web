@@ -32,13 +32,13 @@ export async function generateMetadata({ params }: CityPageProps) {
   const place = `${data.cityName}, ${data.stateCode}`
   if (data.pets.length === 0) {
     return {
-      title: `Pet Adoption in ${place} — Local Shelters`,
+      title: `Pet Adoption in ${place}: Local Shelters`,
       description: `Find pet adoption resources in ${place}. Local shelters partner with Petbound to list pets at risk of euthanasia.`,
       alternates: { canonical: `/adopt/${state}/${city}` },
     }
   }
   return {
-    title: `Adopt a Pet in ${place} — ${data.pets.length} At-Risk ${
+    title: `Adopt a Pet in ${place}: ${data.pets.length} At-Risk ${
       data.pets.length === 1 ? "Pet" : "Pets"
     }`,
     description: `${data.pets.length} pets at ${data.cityName} shelters are on the euthanasia list right now. See their photos and deadlines, and adopt before time runs out.`,
@@ -87,7 +87,7 @@ export default async function CityPage({ params }: CityPageProps) {
         description={
           hasPets
             ? `These pets at ${data.cityName} shelters are running out of time. Meet them before it's too late.`
-            : `No pets in ${data.cityName} are on the euthanasia list right now — but local shelters always have animals that need homes.`
+            : `No pets in ${data.cityName} are on the euthanasia list right now, but local shelters always have animals that need homes.`
         }
         breadcrumbs={
           <Breadcrumbs

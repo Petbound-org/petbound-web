@@ -57,6 +57,32 @@ export function collectionPageJsonLd(opts: {
   }
 }
 
+export interface FaqItem {
+  question: string
+  /** Plain text. Rendered answers must match this, or the markup is spam. */
+  answer: string
+}
+
+/**
+ * FAQPage markup. Google requires the answers here to be visible on the page,
+ * so build this from the same strings the component renders, never from a
+ * separate copy written for crawlers.
+ */
+export function faqPageJsonLd(items: FaqItem[]): object {
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: items.map((item) => ({
+      "@type": "Question",
+      name: item.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: item.answer,
+      },
+    })),
+  }
+}
+
 export function animalShelterJsonLd(shelter: Shelter, url: string): object {
   return {
     "@context": "https://schema.org",

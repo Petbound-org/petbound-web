@@ -14,9 +14,9 @@ import { stateCodeFrom, stateNameFromCode } from "@/lib/seo/states"
 export const revalidate = 1800
 
 export const metadata = {
-  title: "Partner Shelters",
+  title: "Kill Shelters and At-Risk Pets by State",
   description:
-    "The animal shelters working with Petbound to find homes for pets at risk of euthanasia. Find a shelter near you and see the pets that need help today.",
+    "Which animal shelters have pets scheduled for euthanasia right now. Browse by state to see the shelters near you and how much time each pet has left.",
   alternates: { canonical: "/shelters" },
 }
 
@@ -45,7 +45,7 @@ export default async function SheltersPage() {
     }
     list.push({
       slug,
-      name: shelter.name ?? "Partner Shelter",
+      name: shelter.name ?? "Animal Shelter",
       city: shelter.city ? titleCase(shelter.city) : null,
       count: petCounts.get(shelter.id) ?? 0,
     })
@@ -57,15 +57,15 @@ export default async function SheltersPage() {
     <div className="min-h-screen">
       <JsonLd
         data={collectionPageJsonLd({
-          name: "Petbound partner shelters",
+          name: "Kill shelters and at-risk pets by state",
           description: metadata.description,
           url: "/shelters",
         })}
       />
 
       <HubHero
-        title="Partner Shelters"
-        description="These shelters list their most at-risk pets on Petbound. Every adoption directly saves a life."
+        title="Shelters With Pets at Risk"
+        description="Petbound tracks pets that have a euthanasia date scheduled at these shelters. Every adoption directly saves a life."
         breadcrumbs={
           <Breadcrumbs
             items={[{ name: "Home", href: "/" }, { name: "Shelters" }]}
@@ -74,7 +74,7 @@ export default async function SheltersPage() {
       >
         <HubStats
           stats={[
-            { value: slugs.size, label: "partner shelters" },
+            { value: slugs.size, label: "shelters tracked" },
             { value: states.length, label: "states" },
           ]}
         />

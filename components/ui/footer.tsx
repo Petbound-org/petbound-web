@@ -106,7 +106,7 @@ export function Footer() {
                 href="/shelters"
                 className="hover:text-white transition-colors"
               >
-                Partner Shelters
+                Shelters
               </Link>
             </li>
           </ul>

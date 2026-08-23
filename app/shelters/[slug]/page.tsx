@@ -10,12 +10,39 @@ import { ShelterContactCard } from "@/components/seo/shelter-contact-card"
 import { Button } from "@/components/ui/button"
 
 import { getShelterHubData } from "@/lib/api/hubs"
-import { animalShelterJsonLd, itemListJsonLd } from "@/lib/seo/schema"
+import {
+  animalShelterJsonLd,
+  faqPageJsonLd,
+  itemListJsonLd,
+} from "@/lib/seo/schema"
+import {
+  shelterFaqItems,
+  shelterMetaDescription,
+  type ShelterAnswerInput,
+} from "@/lib/seo/shelter-summary"
 
 export const revalidate = 1800
 
 interface ShelterPageProps {
   params: Promise<{ slug: string }>
+}
+
+/**
+ * These pages previously targeted the shelter's own name, which is navigational
+ * intent we cannot win: that searcher wants the shelter's site, hours, and
+ * phone number, and Google already gives them that plus a Business Profile.
+ * They now target the modifier queries ("is X a kill shelter", "X euthanasia
+ * list") where our per-pet deadline data is the only source that answers.
+ */
+function answerInput(
+  data: NonNullable<Awaited<ReturnType<typeof getShelterHubData>>>,
+): ShelterAnswerInput {
+  return {
+    shelterName: data.shelter.name ?? "Animal Shelter",
+    cityName: data.cityName,
+    stateName: data.stateName,
+    pets: data.pets,
+  }
 }
 
 export async function generateMetadata({ params }: ShelterPageProps) {
@@ -25,13 +52,14 @@ export async function generateMetadata({ params }: ShelterPageProps) {
     return { title: "Shelter Not Found", robots: { index: false } }
   }
 
-  const name = data.shelter.name ?? "Partner Shelter"
-  const place = [data.cityName, data.stateCode].filter(Boolean).join(", ")
+  const input = answerInput(data)
+  const count = data.pets.length
+
   return {
-    title: place ? `${name} — Adoptable Pets in ${place}` : name,
-    description: `${data.pets.length} pets at ${name}${
-      place ? ` in ${place}` : ""
-    } are at risk of euthanasia. See their photos, deadlines, and how to adopt before time runs out.`,
+    title: count
+      ? `Is ${input.shelterName} a Kill Shelter? ${count} Pets at Risk`
+      : `Is ${input.shelterName} a Kill Shelter?`,
+    description: shelterMetaDescription(input),
     alternates: { canonical: `/shelters/${slug}` },
   }
 }
@@ -44,8 +72,14 @@ export default async function ShelterPage({ params }: ShelterPageProps) {
   }
 
   const { shelter, pets, urgentCount, cityName, stateCode, stateName } = data
-  const name = shelter.name ?? "Partner Shelter"
+  const input = answerInput(data)
+  const name = input.shelterName
   const hasPets = pets.length > 0
+  const faqs = shelterFaqItems(input)
+  // faqs[0] is the primary question. It is rendered on its own above, so the
+  // list below skips it: the JSON-LD still carries every pair, and every answer
+  // is still visible on the page, which is what Google requires.
+  const [primaryFaq, ...secondaryFaqs] = faqs
   const cityHref =
     stateCode && data.citySlug
       ? `/adopt/${stateCode.toLowerCase()}/${data.citySlug}`
@@ -54,10 +88,12 @@ export default async function ShelterPage({ params }: ShelterPageProps) {
   return (
     <div className="min-h-screen">
       <JsonLd data={animalShelterJsonLd(shelter, `/shelters/${slug}`)} />
+      {/* Answers below are rendered on the page, which Google requires. */}
+      <JsonLd data={faqPageJsonLd(faqs)} />
       {hasPets && (
         <JsonLd
           data={itemListJsonLd({
-            name: `Adoptable pets at ${name}`,
+            name: `Pets at risk at ${name}`,
             urls: pets.slice(0, 24).map((p) => `/pets/${p.id}`),
           })}
         />
@@ -68,7 +104,7 @@ export default async function ShelterPage({ params }: ShelterPageProps) {
         title={name}
         description={
           cityName && stateName
-            ? `Animal shelter in ${cityName}, ${stateName} partnering with Petbound to find homes for pets on the euthanasia list.`
+            ? `Animal shelter in ${cityName}, ${stateName}. Petbound tracks the pets here that have a euthanasia date scheduled.`
             : undefined
         }
         breadcrumbs={
@@ -88,6 +124,17 @@ export default async function ShelterPage({ params }: ShelterPageProps) {
       </HubHero>
 
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+        {/* Lead with the answer. Extraction takes the first passage under a
+            matching heading, so nothing may sit between the two. */}
+        <section className="mb-12 max-w-3xl space-y-4">
+          <h2 className="text-2xl font-bold tracking-tight">
+            {primaryFaq.question}
+          </h2>
+          <p className="text-lg leading-relaxed text-foreground/90">
+            {primaryFaq.answer}
+          </p>
+        </section>
+
         <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-3">
           <div className="space-y-6 lg:col-span-2">
             <h2 className="text-2xl font-bold tracking-tight">
@@ -99,7 +146,7 @@ export default async function ShelterPage({ params }: ShelterPageProps) {
               <div className="space-y-4 rounded-xl border bg-muted/40 p-6">
                 <p className="text-muted-foreground">
                   This shelter has no pets on the euthanasia list right now.
-                  Check nearby listings — other pets in the area still need
+                  Check nearby listings. Other pets in the area still need
                   homes.
                 </p>
                 <Button asChild>
@@ -128,6 +175,25 @@ export default async function ShelterPage({ params }: ShelterPageProps) {
             )}
           </div>
         </div>
+
+        <section className="mt-16 max-w-3xl space-y-8 border-t pt-10">
+          <h2 className="text-2xl font-bold tracking-tight">
+            Common questions about {name}
+          </h2>
+          {/* Plain headings and paragraphs rather than an accordion: the text
+              stays in the DOM for crawlers and AI extraction, and it avoids
+              pulling in a collapsible primitive the app does not have. */}
+          <div className="space-y-6">
+            {secondaryFaqs.map((faq) => (
+              <div key={faq.question} className="space-y-2">
+                <h3 className="text-lg font-semibold">{faq.question}</h3>
+                <p className="leading-relaxed text-muted-foreground">
+                  {faq.answer}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
       </div>
     </div>
   )

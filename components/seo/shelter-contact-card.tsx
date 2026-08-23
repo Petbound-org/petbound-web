@@ -16,7 +16,7 @@ export function ShelterContactCard({
   shelter: Shelter
   href?: string
 }) {
-  const title = shelter.name ?? "Partner Shelter"
+  const title = shelter.name ?? "Animal Shelter"
 
   return (
     <Card>

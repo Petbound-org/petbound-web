@@ -3,7 +3,7 @@ import { Separator } from "@/components/ui/separator"
 import { ShieldAlert, Globe, HeartHandshake, Search } from "lucide-react"
 
 export const metadata = {
-  // Root layout title template appends "— Petbound".
+  // Root layout title template appends "| Petbound".
   title: "About Us",
   description:
     "Petbound partners directly with shelters to prioritize visibility for pets on euthanasia lists, connecting them with adopters before it's too late.",

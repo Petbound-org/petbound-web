@@ -14,7 +14,7 @@ export const revalidate = 1800
 export const metadata = {
   title: "Adoptable Pets by Breed",
   description:
-    "Browse pets on shelter euthanasia lists by breed — Pit Bulls, German Shepherds, Huskies, Labs, and more. Every one of them needs a home now.",
+    "Browse pets on shelter euthanasia lists by breed: Pit Bulls, German Shepherds, Huskies, Labs, and more. Every one of them needs a home now.",
   alternates: { canonical: "/breeds" },
 }
 
