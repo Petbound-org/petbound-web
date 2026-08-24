@@ -45,6 +45,14 @@ export function Footer() {
                 Saved Pets
               </Link>
             </li>
+            <li>
+              <Link
+                href="/research/shelter-euthanasia-data"
+                className="hover:text-white transition-colors"
+              >
+                Research
+              </Link>
+            </li>
           </ul>
         </div>
 

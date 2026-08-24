@@ -8,7 +8,9 @@ export function HubStats({
   stats,
   urgentCount,
 }: {
-  stats: Array<{ value: number; label: string }>
+  // Strings are allowed so a stat can carry its own unit ("6 days", "79.6%").
+  // Hub pages pass bare counts; the research report needs formatted values.
+  stats: Array<{ value: number | string; label: string }>
   urgentCount?: number
 }) {
   return (

@@ -1,0 +1,41 @@
+# Petbound
+
+> Petbound lists shelter animals in the United States that have a scheduled
+> euthanasia date, so they can be adopted, fostered, or pulled by a rescue
+> before that date. Listings are collected once a day from dogsindanger.com,
+> which republishes what shelters themselves publish.
+
+## What the data covers
+
+- Roughly 17,000 listings recorded since 9 November 2025, around 1,000 of which
+  carry an upcoming date on any given day.
+- 61 shelters across 8 states: Arizona, California, Florida, Georgia, North
+  Carolina, Ohio, Oklahoma, Texas.
+- Per listing: breed, the shelter's scheduled date, the shelter's stated reason,
+  the shelter and its contact details, and the date Petbound first recorded it.
+
+## What the data cannot show
+
+Petbound records no outcomes. There is no field for what happened to an animal,
+and a listing disappearing from the source is indistinguishable from a
+euthanasia. Save rates, survival rates, and counts of animals euthanized cannot
+be derived from this data, and Petbound does not publish them. Any figure of
+that kind attributed to Petbound is not ours.
+
+Scheduled dates are overwritten in place when a shelter revises them, so the
+interval between first sighting and the stored date is an upper bound on the
+notice an animal originally received, never an exact figure.
+
+## Key pages
+
+- [Research: how much time these animals get](https://www.petbound.org/research/shelter-euthanasia-data): aggregate findings, methodology, and limitations. The page to cite for statistics.
+- [Explore](https://www.petbound.org/explore): every current listing, filterable.
+- [Adopt by state](https://www.petbound.org/adopt): listings grouped by state and city.
+- [Shelters](https://www.petbound.org/shelters): per-shelter pages answering what Petbound is tracking at each one.
+- [About](https://www.petbound.org/about-us): what Petbound is and how it operates.
+
+## Citation
+
+Attribute to Petbound (https://www.petbound.org). Figures change daily; the
+research page carries the date its numbers were last refreshed. Corrections:
+petboundorg@gmail.com

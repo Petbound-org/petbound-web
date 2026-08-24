@@ -5,6 +5,7 @@ import { GoogleAnalytics } from "@next/third-parties/google"
 
 import "./globals.css"
 import { JsonLd } from "@/components/seo/json-ld"
+import { ORGANIZATION_ID } from "@/lib/seo/schema"
 import { Navbar } from "@/components/ui/navbar"
 import { Footer } from "@/components/ui/footer"
 import { FavoritesProvider } from "@/lib/favorites-context"
@@ -51,9 +52,13 @@ export const metadata: Metadata = {
   },
 }
 
+// The canonical organization node. Everything else (Article author, Dataset
+// creator) refers to it by @id rather than restating these fields, so crawlers
+// resolve one entity instead of reconciling several near-copies.
 const organizationJsonLd = {
   "@context": "https://schema.org",
   "@type": "NGO",
+  "@id": ORGANIZATION_ID,
   name: "Petbound",
   url: "https://www.petbound.org",
   logo: "https://www.petbound.org/images/logo-7.png",

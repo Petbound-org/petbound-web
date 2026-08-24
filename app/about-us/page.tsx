@@ -6,7 +6,7 @@ export const metadata = {
   // Root layout title template appends "| Petbound".
   title: "About Us",
   description:
-    "Petbound partners directly with shelters to prioritize visibility for pets on euthanasia lists, connecting them with adopters before it's too late.",
+    "Petbound collects at-risk shelter listings every day and gives each animal its own page, so pets facing a scheduled euthanasia date are findable before that date arrives.",
   alternates: { canonical: "/about-us" },
 }
 
@@ -43,7 +43,7 @@ export default function LearnMorePage() {
                                     At Petbound, we believe we can change this number together.
                                 </p>
                                 <p className="text-base text-xl text-muted-foreground">
-                                    We built Petbound as an adoption platform that fosters critical connections between compassionate homes and animals running out of time. We partner directly with shelters to prioritize visibility for pets on euthanasia lists, ensuring those facing critical deadlines are seen before it’s too late. We exist to save these lives and bring them to the loving homes they deserve.
+                                    We built Petbound for the animals with the least time left. Shelters across the country publish lists of pets they have scheduled for euthanasia, and those listings are scattered, hard to search, and easy to miss. We collect them every day, give each animal its own page, and point people straight at the shelter that can still let them out.
                                 </p>
                             </div>
                         </CardContent>
@@ -65,7 +65,7 @@ export default function LearnMorePage() {
                             <h3 className="text-lg font-semibold text-foreground">1. Targeting the Urgent</h3>
                         </div>
                         <p className="text-muted-foreground md:w-2/3 leading-relaxed">
-                            We retrieve real-time data from shelters, focusing on animals with the most urgent needs. By syncing photos, biographies, and critical risk status, we guarantee our platform remains a dedicated space for those who cannot wait.
+                            Every day we collect at-risk listings published by shelters, gathered through DogsInDanger.com, and record each animal&apos;s breed, photo, scheduled date, and the reason the shelter gave. Nothing here is a general adoption listing. Every pet on Petbound has a date.
                         </p>
                     </div>
                     
@@ -91,7 +91,7 @@ export default function LearnMorePage() {
                             <h3 className="text-lg font-semibold text-foreground">3. Securing the Connection</h3>
                         </div>
                         <p className="text-muted-foreground md:w-2/3 leading-relaxed">
-                            We bridge the gap instantly by connecting you directly with our partnering shelters, ensuring every rescue has a swift, smooth transition to a forever home.
+                            Every listing carries the shelter&apos;s own phone number and email, so you can call the people holding that animal today. Adoptions happen through the shelter directly. Petbound takes no fee and handles no part of the transaction.
                         </p>
                     </div>
                 </section>
@@ -104,9 +104,12 @@ export default function LearnMorePage() {
                     <p className="mt-3 text-lg text-muted-foreground max-w-2xl mx-auto">
                         By choosing Petbound, you are looking past the millions to focus on the soul that needs you most. Adopt, rescue, and empower a second chance at life by finding them a warm home and a best friend in you. 
                     </p>
-                    <div className="mt-8">
+                    <div className="mt-8 flex flex-wrap justify-center gap-3">
                         <a href="/explore" className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-10 px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/90">
                             Meet Your New Best Friend Here
+                        </a>
+                        <a href="/research/shelter-euthanasia-data" className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 h-10 px-4 py-2 border hover:bg-muted">
+                            See what our data shows
                         </a>
                     </div>
                 </section>

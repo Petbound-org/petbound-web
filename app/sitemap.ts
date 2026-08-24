@@ -12,7 +12,12 @@ import { BASE_URL } from "@/lib/seo/constants"
 export const revalidate = 86400
 
 // /saved is intentionally excluded: it's a noindex, device-local page.
-const STATIC_PATHS = ["/", "/explore", "/about-us"] as const
+const STATIC_PATHS = [
+  "/",
+  "/explore",
+  "/about-us",
+  "/research/shelter-euthanasia-data",
+] as const
 
 function entry(
   path: string,
