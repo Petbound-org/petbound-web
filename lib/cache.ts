@@ -25,4 +25,10 @@ export const CACHE_TTL = {
   hubData: 60 * 30,
   /** Full shelter list (small, changes rarely) — refreshed daily. */
   sheltersList: 60 * 60 * 24,
+  /**
+   * Research-report aggregates over the whole pets table — refreshed daily.
+   * The underlying scrape runs once a day, so anything shorter recomputes over
+   * ~17k rows for data that cannot have changed.
+   */
+  researchData: 60 * 60 * 24,
 } as const
