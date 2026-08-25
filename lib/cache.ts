@@ -13,6 +13,13 @@ export const CACHE_TAGS = {
 } as const
 
 export const CACHE_TTL = {
+  /**
+   * Homepage nearby grid. Short on purpose: this was previously uncached with
+   * noStore(), which forced the whole homepage to server-render (and hit the
+   * geo RPC) on every single request. 60s collapses bursts while keeping a
+   * newly scraped pet visible almost immediately.
+   */
+  nearbyPets: 60,
   /** Explore list — refreshed every 30 minutes. */
   petsList: 60 * 30,
   /** Pet detail — refreshed hourly. */

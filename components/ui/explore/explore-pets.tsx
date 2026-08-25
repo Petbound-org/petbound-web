@@ -23,7 +23,7 @@ import {
   type ExploreFacets,
   type ExploreFilters,
 } from "@/lib/explore-filters"
-import type { Pet } from "@/lib/types/pet.interface"
+import type { ListPet as Pet } from "@/lib/types/pet.interface"
 
 type LocationStatus =
   | "idle"

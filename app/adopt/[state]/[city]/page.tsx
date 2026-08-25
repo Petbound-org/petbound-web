@@ -15,6 +15,16 @@ import { collectionPageJsonLd, itemListJsonLd } from "@/lib/seo/schema"
 
 export const revalidate = 1800
 
+/**
+ * Empty on purpose. `revalidate` above is inert without this: Next renders a
+ * dynamic segment with no generateStaticParams on every request and never
+ * caches it. Returning [] prerenders nothing at build while still registering
+ * the route for ISR, so each URL renders at most once per interval.
+ */
+export function generateStaticParams() {
+  return []
+}
+
 interface CityPageProps {
   params: Promise<{ state: string; city: string }>
 }

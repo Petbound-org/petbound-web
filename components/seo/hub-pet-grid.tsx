@@ -3,7 +3,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { PetCard } from "@/components/ui/pet-card"
 
-import type { Pet } from "@/lib/types/pet.interface"
+import type { ListPet } from "@/lib/types/pet.interface"
 
 /**
  * Pet grid for hub pages. Caps the number of cards (hubs are landing pages,
@@ -15,7 +15,7 @@ export function HubPetGrid({
   seeAllHref = "/explore",
   seeAllLabel = "See all pets in Explore",
 }: {
-  pets: Pet[]
+  pets: ListPet[]
   cap?: number
   seeAllHref?: string
   seeAllLabel?: string

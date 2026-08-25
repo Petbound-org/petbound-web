@@ -9,10 +9,10 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { useFavorites } from "@/lib/favorites-context"
-import type { Pet } from "@/lib/types/pet.interface"
+import type { ListPet } from "@/lib/types/pet.interface"
 
 interface PetCardProps {
-  pet: Pet
+  pet: ListPet
 }
 
 export function PetCard({ pet }: PetCardProps) {
