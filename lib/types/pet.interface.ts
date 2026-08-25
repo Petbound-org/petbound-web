@@ -14,3 +14,13 @@ export interface Pet {
   shelter_given_id: string | null,
   euthanasia_reason: string | null,
 }
+
+/**
+ * A pet as it appears in any list or grid.
+ *
+ * The live-pet index (`getLivePets`) does not select `description`: it is ~800KB
+ * across the live set and no list view reads it, which kept the cached entry
+ * near the ~2MB unstable_cache ceiling. Only the detail page, which fetches a
+ * single row, has the full `Pet`.
+ */
+export type ListPet = Omit<Pet, "description">

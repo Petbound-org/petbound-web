@@ -24,6 +24,24 @@ import { petSummary } from "@/lib/seo/pet-summary"
 import { slugify, titleCase } from "@/lib/seo/slug"
 import { stateCodeFrom, stateNameFromCode } from "@/lib/seo/states"
 
+// Without this the route is fully dynamic and every request re-renders, which
+// on ~1.7k crawlable pet URLs is the single largest CPU cost on the site. Each
+// render walks the live-pet array three times (getShelterSlugs,
+// getIndexableBreeds, getSimilarPets). This costs no extra staleness: getPetById
+// already caches for CACHE_TTL.petDetail (1h), so the data was already that old.
+export const revalidate = 3600
+
+/**
+ * Empty on purpose. `revalidate` alone is inert on a dynamic segment that has no
+ * generateStaticParams: Next renders such a route per request and never caches
+ * it. Returning [] prerenders nothing at build (1.7k pet pages would make builds
+ * unusable) while still registering the route for ISR, so each URL renders at
+ * most once per hour and is served from cache after that.
+ */
+export function generateStaticParams() {
+  return []
+}
+
 interface PetPageProps {
   params: Promise<{ id: string }>
 }

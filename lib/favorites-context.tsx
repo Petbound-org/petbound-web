@@ -2,7 +2,7 @@
 
 import * as React from "react"
 
-import type { Pet } from "@/lib/types/pet.interface"
+import type { ListPet as Pet } from "@/lib/types/pet.interface"
 
 const STORAGE_KEY = "petbound_favorites_v1"
 

@@ -16,13 +16,18 @@ import { slugify, titleCase } from "@/lib/seo/slug"
 import { stateCodeFrom, stateNameFromCode } from "@/lib/seo/states"
 import { isSupabaseConfigured, supabase } from "@/lib/supabase"
 import { todayLocalISO } from "@/lib/today"
-import type { Pet } from "@/lib/types/pet.interface"
+import type { ListPet } from "@/lib/types/pet.interface"
 import type { Shelter } from "@/lib/types/shelter.interface"
 
 /** Days-until-deadline cutoff for "urgent" counts on hub pages. */
 const URGENT_WINDOW_DAYS = 3
 
-export interface LivePet extends Pet {
+/**
+ * A live listing as held in the shared index. `description` is deliberately
+ * absent: it is not selected, so typing it as present would be a lie that
+ * silently yields undefined.
+ */
+export interface LivePet extends ListPet {
   shelter: Pick<
     Shelter,
     "id" | "name" | "city" | "state" | "latitude" | "longitude"
@@ -46,7 +51,15 @@ async function fetchLivePets(): Promise<LivePet[]> {
   for (let from = 0; ; from += PAGE_SIZE) {
     const { data, error } = await supabase
       .from("pets")
-      .select("*, shelters(id, name, city, state, latitude, longitude)")
+      .select(
+        // Explicit columns, not "*". `description` is ~800KB across the live
+        // set and nothing that consumes a LivePet reads it (explore filters,
+        // hub grids, PetCard, getSimilarPets). Including it made this cached
+        // entry ~1.4MB, which is both deserialized on every render and close
+        // to the ~2MB unstable_cache ceiling: past that, caching silently
+        // stops and every request refetches the whole table.
+        "id, name, breed, age, gender, size, image_urls, euthanasia_date, euthanasia_reason, shelter_id, created_at, updated_at, shelter_given_id, shelters(id, name, city, state, latitude, longitude)",
+      )
       .gte("euthanasia_date", today)
       .order("euthanasia_date", { ascending: true })
       .order("id", { ascending: true })
@@ -58,7 +71,7 @@ async function fetchLivePets(): Promise<LivePet[]> {
     }
 
     for (const row of data ?? []) {
-      const { shelters, ...pet } = row as Pet & {
+      const { shelters, ...pet } = row as unknown as ListPet & {
         shelters: LivePet["shelter"]
       }
       pets.push({ ...pet, shelter: shelters ?? null })
@@ -389,7 +402,7 @@ export async function getBreedHubData(
  * then same state.
  */
 export async function getSimilarPets(
-  pet: Pet,
+  pet: ListPet,
   limit = 4,
 ): Promise<LivePet[]> {
   const pets = await getLivePets()

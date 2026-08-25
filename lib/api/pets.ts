@@ -1,10 +1,6 @@
 import "server-only"
 
-import {
-  revalidateTag,
-  unstable_cache,
-  unstable_noStore as noStore,
-} from "next/cache"
+import { revalidateTag, unstable_cache } from "next/cache"
 import { after } from "next/server"
 
 import { isSupabaseConfigured, supabase } from "@/lib/supabase"
@@ -114,14 +110,38 @@ async function fetchPetSitemapEntries(): Promise<
 // hit the populated cache.
 // ---------------------------------------------------------------------------
 
+const _getNearbyPetsCached = unstable_cache(
+  fetchNearbyPets,
+  ["pets-nearby"],
+  {
+    tags: [CACHE_TAGS.pets],
+    revalidate: CACHE_TTL.nearbyPets,
+  },
+)
+
 /**
- * Homepage nearby grid: always live (no unstable_cache).
- * Empty lists must not stick behind a long TTL or static RSC cache so new pets
- * show up as soon as they exist.
+ * Homepage nearby grid.
+ *
+ * Previously uncached with noStore(), which opted the whole homepage out of
+ * static rendering: every visit re-ran the geo RPC and re-rendered the page.
+ * On the busiest URL on the site that was the second largest CPU cost after the
+ * pet pages.
+ *
+ * A 60s TTL keeps the original intent (an empty grid must not stick behind a
+ * long TTL, and new pets should appear quickly) while collapsing bursts, and
+ * the empty-result bypass below means a cached empty list is never trusted.
  */
 export async function getNearbyPets(count: number): Promise<Pet[]> {
-  noStore()
-  return fetchNearbyPets(count)
+  const cached = await _getNearbyPetsCached(count)
+  if (cached.length > 0) return cached
+
+  const fresh = await fetchNearbyPets(count)
+  if (fresh.length > 0) {
+    after(() => {
+      revalidateTag(CACHE_TAGS.pets, "max")
+    })
+  }
+  return fresh
 }
 
 export const getPetById = unstable_cache(
